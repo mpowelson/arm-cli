@@ -10,7 +10,9 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License"
 ]
 dependencies = [
-    "click"
+    "click",
+    "docker",
+    "inquirer",
 ]
 
 [build-system]
