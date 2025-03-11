@@ -10,6 +10,7 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License"
 ]
 dependencies = [
+    "beartype",
     "click",
     "click-completion",
     "docker",
@@ -31,7 +32,6 @@ CI = "https://github.com/mpowelson/arm-cli/actions"
 
 [project.scripts]
 arm-cli = "arm_cli.cli:cli"
-
 
 [project.optional-dependencies]
 test = ["pytest"]
