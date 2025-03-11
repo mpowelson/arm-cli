@@ -1,7 +1,6 @@
 import pytest
 from unittest import mock
 
-from arm_cli.system.shell_scripts import get_current_shell_addins, detect_shell
 from arm_cli.system.setup_utils import setup_xhost, is_line_in_file, setup_shell 
 
 
@@ -32,6 +31,7 @@ def test_is_line_in_file_not_exists(temp_file):
 
 def test_setup_shell_unsupported_shell(monkeypatch, capsys):
     """Test setup_shell for an unsupported shell."""
+    from arm_cli.system.shell_scripts import detect_shell
     monkeypatch.setattr("arm_cli.system.shell_scripts.detect_shell", lambda: "my_shell")  # Unsupported shell
 
     setup_shell()
