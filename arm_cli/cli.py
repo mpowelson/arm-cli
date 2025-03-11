@@ -1,6 +1,6 @@
 import click
 from arm_cli.container import container
-from arm_cli.system import system
+from arm_cli.system.system import system
 
 @click.group()
 @click.version_option()
