@@ -1,7 +1,8 @@
-import pytest
 from unittest import mock
 
-from arm_cli.system.setup_utils import setup_xhost, is_line_in_file
+import pytest
+
+from arm_cli.system.setup_utils import is_line_in_file, setup_xhost
 
 
 @pytest.fixture

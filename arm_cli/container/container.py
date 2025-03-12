@@ -1,7 +1,8 @@
+import subprocess
+
 import click
 import docker
 import inquirer
-import subprocess
 
 
 @click.group()

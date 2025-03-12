@@ -1,6 +1,7 @@
-import pytest
 import click
+import pytest
 from click.testing import CliRunner
+
 from arm_cli.cli import cli
 
 

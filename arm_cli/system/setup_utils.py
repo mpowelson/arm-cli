@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-from arm_cli.system.shell_scripts import get_current_shell_addins, detect_shell
+from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
 
 
 def setup_xhost():
