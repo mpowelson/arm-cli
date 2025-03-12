@@ -35,8 +35,8 @@ arm-cli = "arm_cli.cli:cli"
 
 [project.optional-dependencies]
 test = [
-    "black",
-    "isort",
+    "black==24.8.0",
+    "isort==5.13.2",
     "pytest"
     ]
 
