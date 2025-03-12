@@ -1,15 +1,16 @@
+import subprocess
+
 import click
 import docker
 import inquirer
-import subprocess
 
-from arm_cli.system.setup_utils import setup_xhost, setup_shell
+from arm_cli.system.setup_utils import setup_shell, setup_xhost
+
 
 @click.group()
 def system():
     """Manage the system this CLI is running on"""
     pass
-
 
 
 @system.command()

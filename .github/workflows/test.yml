@@ -1,16 +1,22 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+
 
 permissions:
   contents: read
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-${{ matrix.ubuntu-version }}
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        ubuntu-version: ["20.04", "22.04"]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}

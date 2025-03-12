@@ -2,7 +2,8 @@ import os
 import subprocess
 import sys
 
-from arm_cli.system.shell_scripts import get_current_shell_addins, detect_shell
+from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
+
 
 def setup_xhost():
     """Setup xhost for GUI applications"""
@@ -20,6 +21,7 @@ def is_line_in_file(line, filepath) -> bool:
     with open(filepath, "r") as f:
         return any(line.strip() in l.strip() for l in f)
 
+
 def setup_shell():
     """Setup shell addins for autocomplete"""
     shell = detect_shell()
@@ -33,5 +35,3 @@ def setup_shell():
                 f.write(f"\n{line}\n")
     else:
         print(f"Unsupported shell: {shell}", file=sys.stderr)
-                
-

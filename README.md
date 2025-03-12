@@ -13,13 +13,18 @@ Install this tool using `pip`:
 ```bash
 pip install arm-cli
 ```
-## Usage
 
+Once installed, setup the CLI initially by running `arm-cli system setup`. You may need to rerun if you update the CLI via pip. This will do things like configure system settings to enable tab complete.
+
+## Usage
+### Initial Setup 
 For help, run:
 ```bash
 arm-cli --help
 ```
 You can also use:
+
+
 ```bash
 python -m arm_cli --help
 ```

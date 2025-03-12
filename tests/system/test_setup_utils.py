@@ -1,7 +1,8 @@
-import pytest
 from unittest import mock
 
-from arm_cli.system.setup_utils import setup_xhost, is_line_in_file 
+import pytest
+
+from arm_cli.system.setup_utils import is_line_in_file, setup_xhost
 
 
 @pytest.fixture
@@ -27,4 +28,3 @@ def test_is_line_in_file_exists(temp_file):
 def test_is_line_in_file_not_exists(temp_file):
     """Test if the function correctly returns False for a missing line."""
     assert not is_line_in_file("missing line", temp_file)
-
