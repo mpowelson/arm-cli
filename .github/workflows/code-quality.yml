@@ -21,10 +21,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install black # flake8 mypy  # Add other linters or static analyzers here
+          pip install .[test]
 
       - name: Run Black
         run: black --check .
+
+      - name: Run Isort
+        run: isort --check-only .
 
       # - name: Run Flake8
       #   run: flake8 .
