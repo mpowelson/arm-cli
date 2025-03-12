@@ -34,4 +34,11 @@ CI = "https://github.com/mpowelson/arm-cli/actions"
 arm-cli = "arm_cli.cli:cli"
 
 [project.optional-dependencies]
-test = ["pytest"]
+test = [
+    "black",
+    "pytest"
+    ]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
