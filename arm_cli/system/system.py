@@ -5,11 +5,11 @@ import subprocess
 
 from arm_cli.system.setup_utils import setup_xhost, setup_shell
 
+
 @click.group()
 def system():
     """Manage the system this CLI is running on"""
     pass
-
 
 
 @system.command()

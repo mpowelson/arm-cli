@@ -3,10 +3,12 @@ import docker
 import inquirer
 import subprocess
 
+
 @click.group()
 def container():
     """Manage Docker containers"""
     pass
+
 
 def get_running_containers():
     """Retrieve a list of running Docker containers"""
@@ -14,11 +16,11 @@ def get_running_containers():
     return client.containers.list(filters={"status": "running"})
 
 
-@container.command('list')
+@container.command("list")
 def list_containers():
     """List all Docker containers"""
     containers = get_running_containers()
-    
+
     if containers:
         for container in containers:
             print(f"{container.id[:12]}: {container.name}")
@@ -26,39 +28,38 @@ def list_containers():
         print("No running containers found.")
 
 
-@container.command('attach')
+@container.command("attach")
 def attach_container():
     """Interactively select a running Docker container and attach to it"""
     containers = get_running_containers()
-    
+
     if not containers:
         print("No running containers found.")
         return
-    
+
     container_choices = [
-        inquirer.List('container',
-                      message="Select a container to attach to",
-                      choices=[f"{container.name} ({container.id[:12]})" for container in containers],
-                      carousel=True)
+        inquirer.List(
+            "container",
+            message="Select a container to attach to",
+            choices=[f"{container.name} ({container.id[:12]})" for container in containers],
+            carousel=True,
+        )
     ]
-    
+
     answers = inquirer.prompt(container_choices)
-    selected_container_name = answers['container'].split(" ")[0]  # Extract container name
+    selected_container_name = answers["container"].split(" ")[0]  # Extract container name
 
     print(f"Attaching to {selected_container_name}...")
-    
+
     try:
-        subprocess.run([
-            "docker", "exec", "-it",
-            selected_container_name, "/bin/bash"
-        ], check=True)
+        subprocess.run(["docker", "exec", "-it", selected_container_name, "/bin/bash"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error attaching to container: {e}")
     except KeyboardInterrupt:
         print("\nExiting interactive session...")
 
 
-@container.command('stop')
+@container.command("stop")
 def stop_container():
     """Interactively select a running Docker container and stop it"""
     containers = get_running_containers()
@@ -68,10 +69,12 @@ def stop_container():
         return
 
     container_choices = [
-        inquirer.List('container',
-                      message="Select a container to stop",
-                      choices=[f"{container.name} ({container.id[:12]})" for container in containers],
-                      carousel=True)
+        inquirer.List(
+            "container",
+            message="Select a container to stop",
+            choices=[f"{container.name} ({container.id[:12]})" for container in containers],
+            carousel=True,
+        )
     ]
 
     answers = inquirer.prompt(container_choices)
@@ -79,10 +82,10 @@ def stop_container():
         print("No container selected.")
         return
 
-    selected_container_name = answers['container'].split(" ")[0]  # Extract container name
+    selected_container_name = answers["container"].split(" ")[0]  # Extract container name
 
     print(f"Stopping {selected_container_name}...")
-    
+
     try:
         client = docker.from_env()
         container = client.containers.get(selected_container_name)

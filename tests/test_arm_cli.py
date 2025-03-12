@@ -32,7 +32,6 @@ def get_all_commands(command):
 @pytest.mark.parametrize("command", get_all_commands(cli))
 def test_command_help(runner, command):
     """Test that each command and subcommand displays help."""
-    result = runner.invoke(command, ['--help'])
+    result = runner.invoke(command, ["--help"])
     assert result.exit_code == 0
-    assert 'Usage:' in result.output
-
+    assert "Usage:" in result.output

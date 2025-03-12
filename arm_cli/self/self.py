@@ -11,7 +11,13 @@ def self():
 
 
 @self.command()
-@click.option('--source', default='.', type=click.Path(exists=True), help="Install from a local source path", show_default=True)
+@click.option(
+    "--source",
+    default=".",
+    type=click.Path(exists=True),
+    help="Install from a local source path",
+    show_default=True,
+)
 def update(source):
     """Update arm-cli from PyPI or source"""
     if source:
