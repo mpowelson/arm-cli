@@ -2,7 +2,6 @@ import click
 import subprocess
 import sys
 import os
-import shutil
 
 
 @click.group()
