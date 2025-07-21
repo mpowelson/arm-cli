@@ -1,6 +1,6 @@
 [project]
 name = "arm-cli"
-version = "0.1"
+version = "0.1.1"
 description = "Experimental CLI for deploying robotic applications"
 readme = "README.md"
 authors = [{name = "Matthew Powelson"}]
