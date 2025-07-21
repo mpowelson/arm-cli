@@ -7,7 +7,7 @@ import inquirer
 
 @click.group()
 def container():
-    """Manage Docker containers"""
+    """Basic tools for managing Docker containers. For more extensive tooling, try lazydocker"""
     pass
 
 
@@ -58,6 +58,44 @@ def attach_container():
         print(f"Error attaching to container: {e}")
     except KeyboardInterrupt:
         print("\nExiting interactive session...")
+
+
+@container.command("restart")
+def restart_container():
+    """Interactively select a running Docker container and restart it"""
+    containers = get_running_containers()
+
+    if not containers:
+        print("No running containers found.")
+        return
+
+    container_choices = [
+        inquirer.List(
+            "container",
+            message="Select a container to restart",
+            choices=[f"{container.name} ({container.id[:12]})" for container in containers],
+            carousel=True,
+        )
+    ]
+
+    answers = inquirer.prompt(container_choices)
+    if not answers:
+        print("No container selected.")
+        return
+
+    selected_container_name = answers["container"].split(" ")[0]
+
+    print(f"Restarting {selected_container_name}...")
+
+    try:
+        client = docker.from_env()
+        container = client.containers.get(selected_container_name)
+        container.restart()
+        print(f"Container {selected_container_name} restarted successfully.")
+    except docker.errors.NotFound:
+        print(f"Error: Container {selected_container_name} not found.")
+    except docker.errors.APIError as e:
+        print(f"Error restarting container: {e}")
 
 
 @container.command("stop")
