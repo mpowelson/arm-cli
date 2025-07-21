@@ -16,3 +16,6 @@ if [ -n "$cli_path" ]; then
 fi
 
 # TODO: Figure out tab complete for the alias
+
+# Export for use when launching Docker to match host file ownership
+export CURRENT_UID=$(id -u):$(id -g)
