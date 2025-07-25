@@ -30,7 +30,7 @@ python -m arm_cli --help
 ```
 ## Development
 
-To contribute to this tool, first checkout the code. Then create a new virtual environment:
+To contribute to this tool, first checkout the code. Then create a new virtual environment. From the root of the repo:
 ```bash
 cd arm-cli
 python -m venv venv
