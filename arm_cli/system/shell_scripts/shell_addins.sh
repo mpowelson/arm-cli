@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+## Setup PATH to include $HOME/.local/bin
+setup_path() {
+    # Add $HOME/.local/bin to PATH if it's not already there
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+
 ## Setup autocomplete for arm-cli
 setup_arm_cli_completion() {
     if command -v arm-cli >/dev/null 2>&1; then
@@ -56,6 +64,7 @@ ensure_docker_group() {
 }
 
 # Run setup steps
+setup_path
 setup_arm_cli_completion
 setup_alias
 allow_x11_docker_access
