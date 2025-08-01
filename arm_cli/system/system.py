@@ -4,7 +4,7 @@ import click
 import docker
 import inquirer
 
-from arm_cli.system.setup_utils import setup_shell, setup_xhost, setup_data_directories
+from arm_cli.system.setup_utils import setup_data_directories, setup_shell, setup_xhost
 
 
 @click.group()

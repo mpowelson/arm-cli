@@ -1,7 +1,7 @@
 import os
+import stat
 import subprocess
 import sys
-import stat
 
 from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
 
