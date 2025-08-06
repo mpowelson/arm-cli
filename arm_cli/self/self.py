@@ -26,14 +26,9 @@ def update(source, force):
         print(f"Installing arm-cli from source at {source}...")
 
         if not force:
-            response = (
-                input(
-                    "Do you want to install arm-cli from source? This will clear pip cache. (y/N): "
-                )
-                .strip()
-                .lower()
-            )
-            if response not in ["y", "yes"]:
+            if not click.confirm(
+                "Do you want to install arm-cli from source? This will clear pip cache."
+            ):
                 print("Update cancelled.")
                 return
 
@@ -49,8 +44,7 @@ def update(source, force):
         print("Updating arm-cli from PyPI...")
 
         if not force:
-            response = input("Do you want to update arm-cli from PyPI? (y/N): ").strip().lower()
-            if response not in ["y", "yes"]:
+            if not click.confirm("Do you want to update arm-cli from PyPI?"):
                 print("Update cancelled.")
                 return
 

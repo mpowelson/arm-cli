@@ -3,6 +3,8 @@ import stat
 import subprocess
 import sys
 
+import click
+
 from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
 
 
@@ -26,12 +28,7 @@ def setup_xhost(force=False):
         # Ensure xhost allows local Docker connections
         print("Setting up X11 access for Docker containers...")
         if not force:
-            response = (
-                input("Do you want to configure X11 access for Docker containers? (y/N): ")
-                .strip()
-                .lower()
-            )
-            if response not in ["y", "yes"]:
+            if not click.confirm("Do you want to configure X11 access for Docker containers?"):
                 print("X11 setup cancelled.")
                 return
 
@@ -102,8 +99,7 @@ def setup_data_directories(force=False):
         print("And set appropriate ownership and permissions.")
 
         if not force:
-            response = input("Do you want to proceed? (y/N): ").strip().lower()
-            if response not in ["y", "yes"]:
+            if not click.confirm("Do you want to proceed?"):
                 print("Setup cancelled.")
                 return False
 
@@ -156,12 +152,7 @@ def setup_shell(force=False):
         if not is_line_in_file(line, bashrc_path):
             print(f'Adding \n"{line}"\nto {bashrc_path}')
             if not force:
-                response = (
-                    input("Do you want to add shell autocomplete to ~/.bashrc? (y/N): ")
-                    .strip()
-                    .lower()
-                )
-                if response not in ["y", "yes"]:
+                if not click.confirm("Do you want to add shell autocomplete to ~/.bashrc?"):
                     print("Shell setup cancelled.")
                     return
 
