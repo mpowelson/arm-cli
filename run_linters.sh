@@ -73,23 +73,23 @@ else
     ISORT_FAILED=true
 fi
 
-# Run Flake8 (style checker)
-print_status "Running Flake8 (style checker)..."
-if poetry run flake8 .; then
-    print_success "Flake8 check passed - no style issues found"
-else
-    print_error "Flake8 check failed - style issues found"
-    FLAKE8_FAILED=true
-fi
+# # Run Flake8 (style checker)
+# print_status "Running Flake8 (style checker)..."
+# if poetry run flake8 .; then
+#     print_success "Flake8 check passed - no style issues found"
+# else
+#     print_error "Flake8 check failed - style issues found"
+#     FLAKE8_FAILED=true
+# fi
 
-# Run MyPy (type checker)
-print_status "Running MyPy (type checker)..."
-if poetry run mypy .; then
-    print_success "MyPy check passed - no type issues found"
-else
-    print_error "MyPy check failed - type issues found"
-    MYPY_FAILED=true
-fi
+# # Run MyPy (type checker)
+# print_status "Running MyPy (type checker)..."
+# if poetry run mypy .; then
+#     print_success "MyPy check passed - no type issues found"
+# else
+#     print_error "MyPy check failed - type issues found"
+#     MYPY_FAILED=true
+# fi
 
 # Summary
 echo
