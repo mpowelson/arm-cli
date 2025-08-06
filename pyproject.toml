@@ -10,6 +10,7 @@ include = ["arm_cli/system/shell_scripts/*"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+setuptools = ">=69.0.0"
 beartype = "*"
 click = "*"
 click-completion = "*"
