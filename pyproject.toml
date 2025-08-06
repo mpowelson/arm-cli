@@ -1,45 +1,47 @@
-[project]
+[tool.poetry]
 name = "arm-cli"
 version = "0.1.1"
 description = "Experimental CLI for deploying robotic applications"
+authors = ["Matthew Powelson"]
+license = "Apache-2.0"
 readme = "README.md"
-authors = [{name = "Matthew Powelson"}]
-license = {text = "Apache-2.0"}
-requires-python = ">=3.8"
-classifiers = [
-    "License :: OSI Approved :: Apache Software License"
-]
-dependencies = [
-    "beartype",
-    "click",
-    "click-completion",
-    "docker",
-    "inquirer",
-]
+packages = [{include = "arm_cli"}]
+include = ["arm_cli/system/shell_scripts/*"]
 
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+[tool.poetry.dependencies]
+python = "^3.8"
+setuptools = ">=69.0.0"
+beartype = "*"
+click = "*"
+click-completion = "*"
+docker = "*"
+inquirer = "*"
 
-[tool.setuptools.package-data]
-arm_cli = ["system/shell_scripts/*"]
+[tool.poetry.group.dev.dependencies]
+black = "24.8.0"
+isort = "5.13.2"
+pytest = "*"
+flake8 = "*"
+mypy = "*"
 
-[project.urls]
-Homepage = "https://github.com/mpowelson/arm-cli"
-Changelog = "https://github.com/mpowelson/arm-cli/releases"
-Issues = "https://github.com/mpowelson/arm-cli/issues"
-CI = "https://github.com/mpowelson/arm-cli/actions"
-
-[project.scripts]
+[tool.poetry.scripts]
 arm-cli = "arm_cli.cli:cli"
 
-[project.optional-dependencies]
-test = [
-    "black==24.8.0",
-    "isort==5.13.2",
-    "pytest"
-    ]
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 100
 target-version = ['py38']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

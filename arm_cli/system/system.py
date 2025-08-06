@@ -4,7 +4,7 @@ import click
 import docker
 import inquirer
 
-from arm_cli.system.setup_utils import setup_shell, setup_xhost
+from arm_cli.system.setup_utils import setup_data_directories, setup_shell, setup_xhost
 
 
 @click.group()
@@ -14,12 +14,18 @@ def system():
 
 
 @system.command()
-def setup():
+@click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
+def setup(force):
     """Generic setup (will be refined later)"""
 
-    setup_xhost()
+    setup_xhost(force=force)
 
-    setup_shell()
+    setup_shell(force=force)
+
+    # Setup data directories (may require sudo)
+    if not setup_data_directories(force=force):
+        print("Data directory setup was not completed.")
+        print("You can run this setup again later with: arm-cli system setup")
 
     # Additional setup code can go here (e.g., starting containers, attaching, etc.)
     pass
