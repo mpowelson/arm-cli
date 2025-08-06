@@ -19,10 +19,23 @@ def self():
     help="Install from a local source path",
     show_default=True,
 )
-def update(source):
+@click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
+def update(source, force):
     """Update arm-cli from PyPI or source"""
     if source:
         print(f"Installing arm-cli from source at {source}...")
+
+        if not force:
+            response = (
+                input(
+                    "Do you want to install arm-cli from source? This will clear pip cache. (y/N): "
+                )
+                .strip()
+                .lower()
+            )
+            if response not in ["y", "yes"]:
+                print("Update cancelled.")
+                return
 
         # Clear Python import cache
         print("Clearing Python caches...")
@@ -34,5 +47,12 @@ def update(source):
         print(f"arm-cli installed from source at {source} successfully!")
     else:
         print("Updating arm-cli from PyPI...")
+
+        if not force:
+            response = input("Do you want to update arm-cli from PyPI? (y/N): ").strip().lower()
+            if response not in ["y", "yes"]:
+                print("Update cancelled.")
+                return
+
         subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "arm-cli"], check=True)
         print("arm-cli updated successfully!")

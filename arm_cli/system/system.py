@@ -14,15 +14,16 @@ def system():
 
 
 @system.command()
-def setup():
+@click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
+def setup(force):
     """Generic setup (will be refined later)"""
 
-    setup_xhost()
+    setup_xhost(force=force)
 
-    setup_shell()
+    setup_shell(force=force)
 
     # Setup data directories (may require sudo)
-    if not setup_data_directories():
+    if not setup_data_directories(force=force):
         print("Data directory setup was not completed.")
         print("You can run this setup again later with: arm-cli system setup")
 

@@ -15,7 +15,7 @@ def check_xhost_setup():
         return False
 
 
-def setup_xhost():
+def setup_xhost(force=False):
     """Setup xhost for GUI applications"""
     try:
         # Check if xhost is already configured
@@ -25,6 +25,16 @@ def setup_xhost():
 
         # Ensure xhost allows local Docker connections
         print("Setting up X11 access for Docker containers...")
+        if not force:
+            response = (
+                input("Do you want to configure X11 access for Docker containers? (y/N): ")
+                .strip()
+                .lower()
+            )
+            if response not in ["y", "yes"]:
+                print("X11 setup cancelled.")
+                return
+
         subprocess.run(["xhost", "+local:docker"], check=True)
         print("xhost configured successfully.")
     except subprocess.CalledProcessError as e:
@@ -68,7 +78,7 @@ def check_data_directories_setup():
     return True
 
 
-def setup_data_directories():
+def setup_data_directories(force=False):
     """Setup data directories for the ARM system"""
     try:
         # Check if directories are already properly set up
@@ -91,10 +101,11 @@ def setup_data_directories():
             print(f"  - {directory}")
         print("And set appropriate ownership and permissions.")
 
-        response = input("Do you want to proceed? (y/N): ").strip().lower()
-        if response not in ["y", "yes"]:
-            print("Setup cancelled.")
-            return False
+        if not force:
+            response = input("Do you want to proceed? (y/N): ").strip().lower()
+            if response not in ["y", "yes"]:
+                print("Setup cancelled.")
+                return False
 
         # Get current user UID and GID
         uid = os.getuid()
@@ -135,7 +146,7 @@ def is_line_in_file(line, filepath) -> bool:
         return any(line.strip() in l.strip() for l in f)
 
 
-def setup_shell():
+def setup_shell(force=False):
     """Setup shell addins for autocomplete"""
     shell = detect_shell()
 
@@ -144,6 +155,16 @@ def setup_shell():
         line = f"source {get_current_shell_addins()}"
         if not is_line_in_file(line, bashrc_path):
             print(f'Adding \n"{line}"\nto {bashrc_path}')
+            if not force:
+                response = (
+                    input("Do you want to add shell autocomplete to ~/.bashrc? (y/N): ")
+                    .strip()
+                    .lower()
+                )
+                if response not in ["y", "yes"]:
+                    print("Shell setup cancelled.")
+                    return
+
             with open(bashrc_path, "a") as f:
                 f.write(f"\n{line}\n")
         else:
