@@ -43,7 +43,7 @@ source venv/bin/activate
 ```
 Now install the dependencies and test dependencies:
 ```bash
-pip install -e '.[test]'
+pip install -e '.[dev]'
 ```
 To run the tests:
 ```bash
