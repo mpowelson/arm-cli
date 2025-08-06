@@ -6,9 +6,23 @@ import sys
 from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
 
 
+def check_xhost_setup():
+    """Check if xhost is already configured for Docker"""
+    try:
+        result = subprocess.run(["xhost"], capture_output=True, text=True, check=True)
+        return "LOCAL:docker" in result.stdout
+    except subprocess.CalledProcessError:
+        return False
+
+
 def setup_xhost():
     """Setup xhost for GUI applications"""
     try:
+        # Check if xhost is already configured
+        if check_xhost_setup():
+            print("X11 access for Docker containers is already configured.")
+            return
+
         # Ensure xhost allows local Docker connections
         print("Setting up X11 access for Docker containers...")
         subprocess.run(["xhost", "+local:docker"], check=True)
@@ -45,7 +59,7 @@ def check_data_directories_setup():
 
             # Check permissions (should be 775)
             mode = stat_info.st_mode
-            if not (mode & stat.S_IRWXU and mode & stat.S_IRWXG and not mode & stat.S_IROTH):
+            if not (mode & stat.S_IRWXU and mode & stat.S_IRWXG and not mode & stat.S_IWOTH):
                 return False
 
         except (OSError, PermissionError):
@@ -59,6 +73,7 @@ def setup_data_directories():
     try:
         # Check if directories are already properly set up
         if check_data_directories_setup():
+            print("Data directories are already properly set up.")
             return True
 
         print("Setting up data directories...")
@@ -131,5 +146,7 @@ def setup_shell():
             print(f'Adding \n"{line}"\nto {bashrc_path}')
             with open(bashrc_path, "a") as f:
                 f.write(f"\n{line}\n")
+        else:
+            print("Shell addins are already configured in ~/.bashrc")
     else:
         print(f"Unsupported shell: {shell}", file=sys.stderr)
