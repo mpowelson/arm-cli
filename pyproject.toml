@@ -21,6 +21,17 @@ dependencies = [
 [project.scripts]
 arm-cli = "arm_cli.cli:cli"
 
+[tool.poetry.dependencies]
+python = "^3.8"
+setuptools = ">=69.0.0"
+appdirs = "*"
+beartype = "*"
+click = "*"
+click-completion = "*"
+docker = "*"
+inquirer = "*"
+pydantic = "*"
+
 [project.optional-dependencies]
 dev = [
   "black==24.8.0",

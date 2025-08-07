@@ -1,8 +1,4 @@
-import subprocess
-
 import click
-import docker
-import inquirer
 
 from arm_cli.system.setup_utils import (
     setup_data_directories,
@@ -20,7 +16,9 @@ def system():
 
 @system.command()
 @click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
-def setup(force):
+@click.pass_context
+def setup(ctx, force):
+    config = ctx.obj["config"]  # noqa: F841 - config available for future use
     """Generic setup (will be refined later)"""
 
     setup_xhost(force=force)
@@ -37,5 +35,6 @@ def setup(force):
         print("Data directory setup was not completed.")
         print("You can run this setup again later with: arm-cli system setup")
 
-    # Additional setup code can go here (e.g., starting containers, attaching, etc.)
+    # Additional setup code can go here (e.g., starting containers,
+    # attaching, etc.)
     pass
