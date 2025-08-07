@@ -7,21 +7,16 @@ on:
     branches: [main]
 
 jobs:
-  integration:
+  run-tests:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Docker permissions
-        run: |
-          sudo usermod -aG docker $USER
-          newgrp docker || true
-
-      - name: Build integration Docker image
-        run: docker build -t arm-cli-integration ./tests/integration
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
 
       - name: Run integration tests
         run: |
-          docker run --rm -it --privileged arm-cli-integration
+          chmod +x scripts/run_integration_tests.sh
+          ./scripts/run_integration_tests.sh
