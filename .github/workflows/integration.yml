@@ -1,0 +1,27 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker permissions
+        run: |
+          sudo usermod -aG docker $USER
+          newgrp docker || true
+
+      - name: Build integration Docker image
+        run: docker build -t arm-cli-integration ./tests/integration
+
+      - name: Run integration tests
+        run: |
+          docker run --rm -it --privileged arm-cli-integration
