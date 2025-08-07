@@ -7,7 +7,8 @@ import inquirer
 
 @click.group()
 def container():
-    """Basic tools for managing Docker containers. For more extensive tooling, try lazydocker"""
+    """Basic tools for managing Docker containers. For more extensive tooling,
+    try lazydocker"""
     pass
 
 
@@ -18,8 +19,10 @@ def get_running_containers():
 
 
 @container.command("list")
-def list_containers():
+@click.pass_context
+def list_containers(ctx):
     """List all Docker containers"""
+    config = ctx.obj["config"]  # noqa: F841 - config available for future use
     containers = get_running_containers()
 
     if containers:
@@ -30,8 +33,10 @@ def list_containers():
 
 
 @container.command("attach")
-def attach_container():
+@click.pass_context
+def attach_container(ctx):
     """Interactively select a running Docker container and attach to it"""
+    config = ctx.obj["config"]  # noqa: F841 - config available for future use
     containers = get_running_containers()
 
     if not containers:
@@ -48,7 +53,7 @@ def attach_container():
     ]
 
     answers = inquirer.prompt(container_choices)
-    selected_container_name = answers["container"].split(" ")[0]  # Extract container name
+    selected_container_name = answers["container"].split(" ")[0]  # Extract name
 
     print(f"Attaching to {selected_container_name}...")
 
@@ -61,8 +66,10 @@ def attach_container():
 
 
 @container.command("restart")
-def restart_container():
+@click.pass_context
+def restart_container(ctx):
     """Interactively select a running Docker container and restart it"""
+    config = ctx.obj["config"]  # noqa: F841 - config available for future use
     containers = get_running_containers()
 
     if not containers:
@@ -99,8 +106,10 @@ def restart_container():
 
 
 @container.command("stop")
-def stop_container():
+@click.pass_context
+def stop_container(ctx):
     """Interactively select a running Docker container and stop it"""
+    config = ctx.obj["config"]  # noqa: F841 - config available for future use
     containers = get_running_containers()
 
     if not containers:
@@ -121,7 +130,7 @@ def stop_container():
         print("No container selected.")
         return
 
-    selected_container_name = answers["container"].split(" ")[0]  # Extract container name
+    selected_container_name = answers["container"].split(" ")[0]  # Extract name
 
     print(f"Stopping {selected_container_name}...")
 

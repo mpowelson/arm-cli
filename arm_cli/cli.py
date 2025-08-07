@@ -1,5 +1,6 @@
 import click
 
+from arm_cli.config import load_config
 from arm_cli.container.container import container
 from arm_cli.self.self import self
 from arm_cli.system.system import system
@@ -7,9 +8,12 @@ from arm_cli.system.system import system
 
 @click.version_option()
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
-def cli():
+@click.pass_context
+def cli(ctx):
     """Experimental CLI for deploying robotic applications"""
-    pass
+    # Load config and store in context
+    ctx.ensure_object(dict)
+    ctx.obj["config"] = load_config()
 
 
 # Add command groups

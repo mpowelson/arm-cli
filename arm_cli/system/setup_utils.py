@@ -236,7 +236,7 @@ def setup_docker_group(force=False):
 def is_line_in_file(line, filepath) -> bool:
     """Checks if a line is already in a file"""
     with open(filepath, "r") as f:
-        return any(line.strip() in l.strip() for l in f)
+        return any(line.strip() in file_line.strip() for file_line in f)
 
 
 def setup_shell(force=False):
