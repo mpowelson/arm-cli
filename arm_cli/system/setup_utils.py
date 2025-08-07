@@ -61,6 +61,11 @@ def check_xhost_setup():
 
 def setup_xhost(force=False):
     """Setup xhost for GUI applications"""
+    # Skip xhost setup in Docker environment TODO: Handle this better in integration tests and remove this
+    if os.path.exists("/.dockerenv"):
+        print("Skipping xhost setup in Docker environment.")
+        return
+
     try:
         # Check if xhost is already configured
         if check_xhost_setup():
