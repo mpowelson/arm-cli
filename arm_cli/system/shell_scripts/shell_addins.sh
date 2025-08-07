@@ -14,14 +14,14 @@ setup_arm_cli_completion() {
         local completion_script="$HOME/.arm_cli_completion.sh"
         # Generate completion script if it doesn't exist or arm-cli was updated
         if [ ! -f "$completion_script" ] || [ "$(command -v arm-cli)" -nt "$completion_script" ]; then
-            _ARM_CLI_COMPLETE=bash_source arm-cli > "$completion_script" 2>/dev/null
+            _ARM_CLI_COMPLETE=bash_source arm-cli > "$completion_script" 2>/dev/null || true
         fi
 
         # Source the script or fallback to dynamic completion
         if [ -f "$completion_script" ]; then
-            source "$completion_script"
+            source "$completion_script" 2>/dev/null || true
         else
-            eval "$(_ARM_CLI_COMPLETE=bash_source arm-cli)"
+            eval "$(_ARM_CLI_COMPLETE=bash_source arm-cli 2>/dev/null)" 2>/dev/null || true
         fi
     fi
 }
@@ -45,21 +45,16 @@ export CURRENT_UID="$(id -u):$(id -g)"
 
 ## Allow Docker containers to access X11
 allow_x11_docker_access() {
-    if command -v xhost >/dev/null 2>&1; then
-        xhost +local:docker >/dev/null 2>&1
+    if command -v xhost >/dev/null 2>&1 && [ -n "$DISPLAY" ]; then
+        xhost +local:docker >/dev/null 2>&1 || true
     fi
 }
 
-## Add user to docker group if needed
-ensure_docker_group() {
+## Check docker group membership
+check_docker_group() {
     if ! id -nG "$USER" | grep -qw docker; then
-        echo "Adding $USER to docker group..."
-        sudo usermod -aG docker "$USER"
-        echo "Please log out and back in for the docker group changes to take effect,"
-        echo "or run 'newgrp docker' in a new terminal session."
-    else
-        # User is already in group; try to activate it
-        newgrp docker >/dev/null 2>&1 || true
+        echo "Warning: $USER is not in the docker group."
+        echo "To add yourself to the docker group, run: arm-cli system setup"
     fi
 }
 
@@ -68,4 +63,4 @@ setup_path
 setup_arm_cli_completion
 setup_alias
 allow_x11_docker_access
-ensure_docker_group
+check_docker_group
