@@ -4,7 +4,12 @@ import click
 import docker
 import inquirer
 
-from arm_cli.system.setup_utils import setup_data_directories, setup_shell, setup_xhost
+from arm_cli.system.setup_utils import (
+    setup_data_directories,
+    setup_docker_group,
+    setup_shell,
+    setup_xhost,
+)
 
 
 @click.group()
@@ -21,6 +26,11 @@ def setup(force):
     setup_xhost(force=force)
 
     setup_shell(force=force)
+
+    # Setup docker group (may require sudo)
+    if not setup_docker_group(force=force):
+        print("Docker group setup was not completed.")
+        print("You can run this setup again later with: arm-cli system setup")
 
     # Setup data directories (may require sudo)
     if not setup_data_directories(force=force):

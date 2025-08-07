@@ -50,22 +50,17 @@ allow_x11_docker_access() {
     fi
 }
 
-# ## Add user to docker group if needed
-# ensure_docker_group() {
-#     if ! id -nG "$USER" | grep -qw docker; then
-#         echo "Adding $USER to docker group..."
-#         sudo usermod -aG docker "$USER"
-#         echo "Please log out and back in for the docker group changes to take effect,"
-#         echo "or run 'newgrp docker' in a new terminal session."
-#     else
-#         # User is already in group; try to activate it
-#         newgrp docker >/dev/null 2>&1 || true
-#     fi
-# }
+## Check docker group membership
+check_docker_group() {
+    if ! id -nG "$USER" | grep -qw docker; then
+        echo "Warning: $USER is not in the docker group."
+        echo "To add yourself to the docker group, run: arm-cli system setup"
+    fi
+}
 
 # Run setup steps
 setup_path
 setup_arm_cli_completion
 setup_alias
 allow_x11_docker_access
-# ensure_docker_group  # Commented out to prevent hanging
+check_docker_group
