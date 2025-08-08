@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 import click
+from click.core import ParameterSource
 
 
 @click.group()
@@ -14,14 +15,17 @@ def self():
 @self.command()
 @click.option(
     "--source",
-    default=".",
+    default=None,
     type=click.Path(exists=True),
-    help="Install from a local source path",
-    show_default=True,
+    help="Install from a local source path (defaults to current directory if specified without value)",
 )
 @click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
-def update(source, force):
+@click.pass_context
+def update(ctx, source, force):
     """Update arm-cli from PyPI or source"""
+    if source is None and ctx.get_parameter_source("source") == ParameterSource.COMMANDLINE:
+        source = "."
+
     if source:
         print(f"Installing arm-cli from source at {source}...")
 
