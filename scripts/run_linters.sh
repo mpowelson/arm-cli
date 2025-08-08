@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ARM CLI Linting Script
-# This script runs all configured linters for the arm-cli project using Poetry
+# This script runs all configured linters for the arm-cli project using pip
 
 set -e  # Exit on any error
 
@@ -36,46 +36,33 @@ if [ ! -f "pyproject.toml" ]; then
 fi
 
 print_status "Starting linting checks for arm-cli..."
-
-# Check if Poetry is installed
-if ! command -v poetry > /dev/null 2>&1; then
-    print_error "Poetry is not installed. Please install Poetry first:"
-    echo "  curl -sSL https://install.python-poetry.org | python3 -"
-    exit 1
-fi
-
-# Check if Poetry environment is set up
-if [ ! -f "poetry.lock" ]; then
-    print_status "Poetry lock file not found. Installing dependencies..."
-    poetry install --with dev
-else
-    print_status "Installing/updating dependencies..."
-    poetry install --with dev
-fi
+print_status "Ensuring required tools are installed..."
+python -m pip install --upgrade pip >/dev/null
+python -m pip install black==24.8.0 isort==5.13.2 >/dev/null
 
 # Run Black (code formatter)
 print_status "Running Black (code formatter)..."
-if poetry run black --check .; then
+if black --check .; then
     print_success "Black check passed - code is properly formatted"
 else
     print_error "Black check failed - code needs formatting"
-    print_status "Run 'poetry run black .' to automatically format the code"
+    print_status "Run 'black .' to automatically format the code"
     BLACK_FAILED=true
 fi
 
 # Run isort (import sorter)
 print_status "Running isort (import sorter)..."
-if poetry run isort --check-only .; then
+if isort --check-only .; then
     print_success "isort check passed - imports are properly sorted"
 else
     print_error "isort check failed - imports need sorting"
-    print_status "Run 'poetry run isort .' to automatically sort imports"
+    print_status "Run 'isort .' to automatically sort imports"
     ISORT_FAILED=true
 fi
 
 # # Run Flake8 (style checker)
 # print_status "Running Flake8 (style checker)..."
-# if poetry run flake8 .; then
+# if flake8 .; then
 #     print_success "Flake8 check passed - no style issues found"
 # else
 #     print_error "Flake8 check failed - style issues found"
@@ -84,7 +71,7 @@ fi
 
 # # Run MyPy (type checker)
 # print_status "Running MyPy (type checker)..."
-# if poetry run mypy .; then
+# if mypy .; then
 #     print_success "MyPy check passed - no type issues found"
 # else
 #     print_error "MyPy check failed - type issues found"
@@ -98,12 +85,12 @@ if [ "$BLACK_FAILED" = true ] || [ "$ISORT_FAILED" = true ] || [ "$FLAKE8_FAILED
     print_error "Some linting checks failed!"
     echo
     print_status "To fix formatting issues:"
-    echo "  poetry run black ."
-    echo "  poetry run isort ."
+    echo "  black ."
+    echo "  isort ."
     echo
     print_status "To run individual linters:"
-    echo "  poetry run flake8 ."
-    echo "  poetry run mypy ."
+    echo "  flake8 ."
+    echo "  mypy ."
     exit 1
 else
     print_success "All linting checks passed! 🎉"
