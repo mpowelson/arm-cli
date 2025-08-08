@@ -1,7 +1,9 @@
 import os
+import re
 import stat
 import subprocess
 import sys
+from typing import List, Tuple
 
 import click
 
@@ -234,9 +236,49 @@ def setup_docker_group(force=False):
 
 
 def is_line_in_file(line, filepath) -> bool:
-    """Checks if a line is already in a file"""
-    with open(filepath, "r") as f:
-        return any(line.strip() in l.strip() for l in f)
+    """Checks if a line (non-commented) is already in a file.
+
+    A line is considered present only if there exists a line that is not commented out
+    (ignoring leading whitespace) and either exactly matches the given line or contains
+    it as a substring. This prevents commented-out matches from counting as present.
+    """
+    try:
+        with open(filepath, "r") as file_handle:
+            wanted = line.strip()
+            for existing in file_handle:
+                stripped = existing.strip()
+                if not stripped:
+                    continue
+                # Skip commented lines
+                if stripped.startswith("#"):
+                    continue
+                if stripped == wanted or wanted in stripped:
+                    return True
+        return False
+    except FileNotFoundError:
+        return False
+
+
+def _remove_existing_shell_addins_lines(bashrc_path: str) -> Tuple[List[str], List[str]]:
+    """Remove lines sourcing any shell_addins.* file and return (kept_lines, removed_lines)."""
+    try:
+        with open(bashrc_path, "r") as file_handle:
+            lines = file_handle.readlines()
+    except FileNotFoundError:
+        return [], []
+
+    # Match commented or uncommented lines that source any shell_addins.* script
+    pattern = re.compile(r"^\s*#?\s*source\s+.*shell_addins\.(sh|zsh|fish)\b")
+
+    kept_lines: List[str] = []
+    removed_lines: List[str] = []
+    for line in lines:
+        if pattern.search(line):
+            removed_lines.append(line.rstrip("\n"))
+        else:
+            kept_lines.append(line)
+
+    return kept_lines, removed_lines
 
 
 def setup_shell(force=False):
@@ -254,16 +296,45 @@ def setup_shell(force=False):
             bashrc_path = os.path.expanduser("~/.bashrc")
 
         line = f"source {get_current_shell_addins()}"
-        if not is_line_in_file(line, bashrc_path):
+
+        # If our active line is already present (not commented), nothing to do
+        if is_line_in_file(line, bashrc_path):
+            print("Shell addins are already configured in ~/.bashrc")
+            return
+
+        # Remove any previous shell_addins entries (e.g., from a local install or commented ones)
+        kept_lines, removed_lines = _remove_existing_shell_addins_lines(bashrc_path)
+
+        if removed_lines:
+            # Inform the user we will remove one line and add another
+            print("Found existing shell addins entry in ~/.bashrc.")
+            print(f"This will remove one line and add another in {bashrc_path}:")
+            print(f'  - remove: "{removed_lines[0]}"')
+            print(f'  - add:    "{line}"')
+
+            if not force:
+                if not click.confirm("Proceed with updating your ~/.bashrc?"):
+                    print("Shell setup cancelled.")
+                    return
+
+            # Write back file without the removed lines
+            os.makedirs(os.path.dirname(bashrc_path), exist_ok=True)
+            with open(bashrc_path, "w") as file_handle:
+                file_handle.writelines(kept_lines)
+
+            # Append the desired line (ensure it's not commented)
+            with open(bashrc_path, "a") as file_handle:
+                file_handle.write(f"\n{line}\n")
+        else:
+            # No previous entries; simply add ours
             print(f'Adding \n"{line}"\nto {bashrc_path}')
             if not force:
                 if not click.confirm("Do you want to add shell autocomplete to ~/.bashrc?"):
                     print("Shell setup cancelled.")
                     return
 
-            with open(bashrc_path, "a") as f:
-                f.write(f"\n{line}\n")
-        else:
-            print("Shell addins are already configured in ~/.bashrc")
+            os.makedirs(os.path.dirname(bashrc_path), exist_ok=True)
+            with open(bashrc_path, "a") as file_handle:
+                file_handle.write(f"\n{line}\n")
     else:
         print(f"Unsupported shell: {shell}", file=sys.stderr)

@@ -57,6 +57,8 @@ check_docker_group() {
         echo "To add yourself to the docker group, run: arm-cli system setup"
     fi
 }
+TODO: Use this instead of scraping the bashrc to see if the file is sourced correctly
+export SHELL_ADDINS_PATH="${BASH_SOURCE[0]}"
 
 # Run setup steps
 setup_path
