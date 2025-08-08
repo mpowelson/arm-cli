@@ -1,35 +1,47 @@
-[tool.poetry]
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
 name = "arm-cli"
-version = "0.1.3"
 description = "Experimental CLI for deploying robotic applications"
-authors = ["Matthew Powelson"]
-license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "arm_cli"}]
-include = ["arm_cli/system/shell_scripts/*"]
+license = { file = "LICENSE" }
+authors = [{ name = "Matthew Powelson" }]
+requires-python = ">=3.8"
+dynamic = ["version"]
+dependencies = [
+  "beartype",
+  "click",
+  "click-completion",
+  "docker",
+  "inquirer",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-setuptools = ">=69.0.0"
-beartype = "*"
-click = "*"
-click-completion = "*"
-docker = "*"
-inquirer = "*"
-
-[tool.poetry.group.dev.dependencies]
-black = "24.8.0"
-isort = "5.13.2"
-pytest = "*"
-flake8 = "*"
-mypy = "*"
-
-[tool.poetry.scripts]
+[project.scripts]
 arm-cli = "arm_cli.cli:cli"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+dev = [
+  "black==24.8.0",
+  "isort==5.13.2",
+  "pytest",
+  "flake8",
+  "mypy",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["arm_cli*"]
+
+[tool.setuptools.package-data]
+"arm_cli.system.shell_scripts" = ["*.sh", "*.zsh", "*.fish"]
+
+[tool.setuptools_scm]
+write_to = "arm_cli/_version.py"
+local_scheme = "node-and-date"
 
 [tool.black]
 line-length = 100
