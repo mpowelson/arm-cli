@@ -23,8 +23,9 @@ WORKDIR /home/testuser
 COPY --chown=testuser:testuser . /home/testuser/arm-cli
 WORKDIR /home/testuser/arm-cli
 
-# Install arm-cli in development mode (system-wide)
-RUN sudo pip3 install -e .
+# Upgrade pip, setuptools, wheel, setuptools_scm then install arm-cli in editable mode
+RUN sudo pip3 install --upgrade pip setuptools>=65.5.0 wheel setuptools_scm && \
+    sudo pip3 install -e .
 
 # Make scripts executable
 RUN chmod +x ./tests/integration/run.sh ./tests/integration/check.sh

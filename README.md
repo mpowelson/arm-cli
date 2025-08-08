@@ -51,15 +51,13 @@ python -m pytest
 ```
 ### Troubleshooting
 
-#### Error: File "setup.py" not found.
-If you get this error when running:
-
-> ERROR: File "setup.py" not found. Directory cannot be installed in editable mode: ...
-(A "pyproject.toml" file was found, but editable mode currently requires a setup.py based build.)
-
-it usually means you need to upgrade pip to version 21.3 or newer
-```
-pip install --upgrade pip
-```
+- If editable install fails, ensure you have a modern toolchain:
+  ```bash
+  python -m pip install --upgrade pip setuptools wheel build setuptools-scm
+  ```
+- If the reported version is `0+unknown`, ensure you're working from a Git checkout with tags available:
+  ```bash
+  git fetch --tags --force
+  ```
 
 
