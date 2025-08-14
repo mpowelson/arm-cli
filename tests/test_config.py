@@ -33,7 +33,7 @@ class TestConfigFunctions:
             config_dir = get_config_dir()
 
             assert config_dir == Path("/tmp/test_config")
-            mock_user_config_dir.assert_called_once_with("mycli")
+            mock_user_config_dir.assert_called_once_with("arm-cli")
 
     def test_get_config_file(self):
         """Test that config file path is correct."""
