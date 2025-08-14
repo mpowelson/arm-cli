@@ -12,11 +12,9 @@ class ProjectConfig(BaseModel):
 
     name: str
     description: Optional[str] = None
+    project_directory: Optional[str] = None
     docker_compose_file: Optional[str] = None
     data_directory: Optional[str] = None
-    resources: Optional[Dict[str, str]] = None
-    skills: Optional[Dict[str, str]] = None
-    monitoring: Optional[Dict[str, str]] = None
 
 
 class Config(BaseModel):
@@ -146,4 +144,7 @@ def get_active_project_config(config: Config) -> Optional[ProjectConfig]:
         return load_project_config(config.active_project)
     except FileNotFoundError:
         print(f"Active project config not found at {config.active_project}")
+        return None
+    except IsADirectoryError:
+        print(f"Active project config path is a directory: {config.active_project}")
         return None
