@@ -117,6 +117,15 @@ def add_project_to_list(config: Config, project_path: str, project_name: str) ->
 
 def get_available_projects(config: Config) -> List[AvailableProject]:
     """Get the list of available projects."""
+    # If no projects are available, ensure the default project is added
+    if not config.available_projects:
+        try:
+            default_path = copy_default_project_config()
+            default_project_config = load_project_config(str(default_path))
+            add_project_to_list(config, str(default_path), default_project_config.name)
+        except Exception as e:
+            print(f"Error setting up default project: {e}")
+
     return config.available_projects
 
 
@@ -202,8 +211,12 @@ def get_active_project_config(config: Config) -> Optional[ProjectConfig]:
         try:
             default_path = copy_default_project_config()
             config.active_project = str(default_path)
-            save_config(config)
-            return load_project_config(config.active_project)
+
+            # Also add the default project to available projects if not already there
+            default_project_config = load_project_config(str(default_path))
+            add_project_to_list(config, str(default_path), default_project_config.name)
+
+            return default_project_config
         except Exception as e:
             print(f"Error setting up default project config: {e}")
             return None
@@ -216,3 +229,19 @@ def get_active_project_config(config: Config) -> Optional[ProjectConfig]:
     except IsADirectoryError:
         print(f"Active project config path is a directory: {config.active_project}")
         return None
+
+
+def print_no_projects_message() -> None:
+    """Print the standard message when no projects are available."""
+    print("No projects available. Use 'arm-cli projects init <path>' to add a project.")
+
+
+def print_available_projects(config: Config) -> None:
+    """Print the list of available projects."""
+    available_projects = get_available_projects(config)
+    if available_projects:
+        print("Available projects:")
+        for i, proj in enumerate(available_projects, 1):
+            print(f"  {i}. {proj.name} ({proj.path})")
+    else:
+        print_no_projects_message()

@@ -38,7 +38,7 @@ setup_alias() {
             complete -o default -F _arm_cli_completion "$alias_name" 2>/dev/null || true
             
             # Add cdp alias to change to project directory
-            alias cdp='cd "$(arm-cli projects info --field "project_directory")"'
+            alias cdp='cd "$(arm-cli projects info --field "project_directory" | sed "s|^~|$HOME|")"'
         fi
     fi
 }

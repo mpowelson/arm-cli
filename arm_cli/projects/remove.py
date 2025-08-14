@@ -3,7 +3,13 @@ from typing import Optional
 import click
 import inquirer
 
-from arm_cli.config import get_available_projects, remove_project_from_list, save_config
+from arm_cli.config import (
+    get_available_projects,
+    print_available_projects,
+    print_no_projects_message,
+    remove_project_from_list,
+    save_config,
+)
 
 
 def _remove(ctx, project: Optional[str] = None):
@@ -101,13 +107,7 @@ def _remove(ctx, project: Optional[str] = None):
             print("Active project has been cleared.")
     else:
         print(f"Project '{project}' not found in available projects")
-        print("\nAvailable projects:")
-        available_projects = get_available_projects(config)
-        if available_projects:
-            for i, proj in enumerate(available_projects, 1):
-                print(f"  {i}. {proj.name} ({proj.path})")
-        else:
-            print("  No projects available.")
+        print_available_projects(config)
 
 
 # Create the command object

@@ -3,7 +3,13 @@ from typing import Optional
 import click
 import inquirer
 
-from arm_cli.config import activate_project, get_available_projects
+from arm_cli.config import (
+    activate_project,
+    get_active_project_config,
+    get_available_projects,
+    print_available_projects,
+    print_no_projects_message,
+)
 
 
 def _activate(ctx, project: Optional[str] = None):
@@ -15,7 +21,14 @@ def _activate(ctx, project: Optional[str] = None):
         available_projects = get_available_projects(config)
 
         if not available_projects:
-            print("No projects available. Use 'arm-cli projects init <path>' to add a project.")
+            print("No projects available. Setting up default project...")
+            project_config = get_active_project_config(config)
+            if project_config:
+                print(f"Activated default project: {project_config.name}")
+                print(f"Project directory: {project_config.project_directory}")
+            else:
+                print("Failed to set up default project.")
+                print_no_projects_message()
             return
 
         # Create choices for inquirer
@@ -55,13 +68,7 @@ def _activate(ctx, project: Optional[str] = None):
         print(f"Project directory: {project_config.project_directory}")
     else:
         print(f"Project '{project}' not found in available projects")
-        print("\nAvailable projects:")
-        available_projects = get_available_projects(config)
-        if available_projects:
-            for i, proj in enumerate(available_projects, 1):
-                print(f"  {i}. {proj.name} ({proj.path})")
-        else:
-            print("  No projects available. Use 'arm-cli projects init <path>' to add a project.")
+        print_available_projects(config)
 
 
 # Create the command object
