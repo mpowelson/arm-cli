@@ -1,7 +1,7 @@
 import json
 import shutil
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import appdirs
 from pydantic import BaseModel
@@ -17,10 +17,18 @@ class ProjectConfig(BaseModel):
     data_directory: Optional[str] = None
 
 
+class AvailableProject(BaseModel):
+    """Schema for available project entry."""
+
+    name: str
+    path: str
+
+
 class Config(BaseModel):
     """Configuration schema for the CLI."""
 
     active_project: str = ""
+    available_projects: List[AvailableProject] = []
 
 
 def get_config_dir() -> Path:
@@ -92,6 +100,66 @@ def load_project_config(project_path: str) -> ProjectConfig:
     with open(config_path, "r") as f:
         data = json.load(f)
     return ProjectConfig(**data)
+
+
+def add_project_to_list(config: Config, project_path: str, project_name: str) -> None:
+    """Add a project to the available projects list and set as active."""
+    # Remove existing entry if it exists
+    config.available_projects = [p for p in config.available_projects if p.path != project_path]
+
+    # Add new entry
+    project_entry = AvailableProject(name=project_name, path=project_path)
+    config.available_projects.append(project_entry)
+
+    # Set as active project
+    config.active_project = project_path
+
+
+def get_available_projects(config: Config) -> List[AvailableProject]:
+    """Get the list of available projects."""
+    return config.available_projects
+
+
+def activate_project(config: Config, project_identifier: str) -> Optional[ProjectConfig]:
+    """Activate a project by path or name."""
+    # First try to find by exact path
+    for project in config.available_projects:
+        if project.path == project_identifier:
+            config.active_project = project.path
+            save_config(config)
+            return load_project_config(project.path)
+
+    # Try to find by name
+    for project in config.available_projects:
+        if project.name.lower() == project_identifier.lower():
+            config.active_project = project.path
+            save_config(config)
+            return load_project_config(project.path)
+
+    return None
+
+
+def remove_project_from_list(config: Config, project_identifier: str) -> bool:
+    """Remove a project from the available projects list by path or name."""
+    # First try to find by exact path
+    for project in config.available_projects:
+        if project.path == project_identifier:
+            # If this is the active project, clear the active project
+            if config.active_project == project.path:
+                config.active_project = ""
+            config.available_projects.remove(project)
+            return True
+
+    # Try to find by name
+    for project in config.available_projects:
+        if project.name.lower() == project_identifier.lower():
+            # If this is the active project, clear the active project
+            if config.active_project == project.path:
+                config.active_project = ""
+            config.available_projects.remove(project)
+            return True
+
+    return False
 
 
 def load_config() -> Config:
