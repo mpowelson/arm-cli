@@ -12,11 +12,7 @@ from arm_cli.config import (
 )
 
 
-@click.command()
-@click.argument("project_path", type=click.Path(exists=True, file_okay=False, dir_okay=True))
-@click.option("--name", help="Name for the project (defaults to directory name)")
-@click.pass_context
-def init(ctx, project_path: str, name: Optional[str] = None):
+def _init(ctx, project_path: str, name: Optional[str] = None):
     """Initialize a new project from an existing directory"""
     config = ctx.obj["config"]
 
@@ -62,3 +58,13 @@ def init(ctx, project_path: str, name: Optional[str] = None):
 
     print(f"Project '{project_config.name}' initialized and set as active")
     print(f"Project directory: {project_config.project_directory}")
+
+
+# Create the command object
+init = click.command(name="init")(
+    click.argument("project_path", type=click.Path(exists=True, file_okay=False, dir_okay=True))(
+        click.option("--name", help="Name for the project (defaults to directory name)")(
+            click.pass_context(_init)
+        )
+    )
+)

@@ -6,10 +6,7 @@ import inquirer
 from arm_cli.config import get_available_projects, remove_project_from_list, save_config
 
 
-@click.command()
-@click.argument("project", required=False)
-@click.pass_context
-def remove(ctx, project: Optional[str] = None):
+def _remove(ctx, project: Optional[str] = None):
     """Remove a project from available projects"""
     config = ctx.obj["config"]
 
@@ -111,3 +108,9 @@ def remove(ctx, project: Optional[str] = None):
                 print(f"  {i}. {proj.name} ({proj.path})")
         else:
             print("  No projects available.")
+
+
+# Create the command object
+remove = click.command(name="remove")(
+    click.argument("project", required=False)(click.pass_context(_remove))
+)

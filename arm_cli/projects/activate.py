@@ -6,10 +6,7 @@ import inquirer
 from arm_cli.config import activate_project, get_available_projects
 
 
-@click.command()
-@click.argument("project", required=False)
-@click.pass_context
-def activate(ctx, project: Optional[str] = None):
+def _activate(ctx, project: Optional[str] = None):
     """Activate a project from available projects"""
     config = ctx.obj["config"]
 
@@ -65,3 +62,9 @@ def activate(ctx, project: Optional[str] = None):
                 print(f"  {i}. {proj.name} ({proj.path})")
         else:
             print("  No projects available. Use 'arm-cli projects init <path>' to add a project.")
+
+
+# Create the command object
+activate = click.command(name="activate")(
+    click.argument("project", required=False)(click.pass_context(_activate))
+)
