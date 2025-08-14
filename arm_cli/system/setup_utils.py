@@ -94,9 +94,13 @@ def check_sudo_privileges():
         return False
 
 
-def check_data_directories_setup():
+def check_data_directories_setup(data_directory="/DATA"):
     """Check if data directories are already properly set up"""
-    data_dirs = ["/DATA/influxdb2", "/DATA/images", "/DATA/node_exporter"]
+    data_dirs = [
+        os.path.join(data_directory, "influxdb2"),
+        os.path.join(data_directory, "images"),
+        os.path.join(data_directory, "node_exporter"),
+    ]
     current_uid = os.getuid()
     current_gid = os.getgid()
 
@@ -122,11 +126,11 @@ def check_data_directories_setup():
     return True
 
 
-def setup_data_directories(force=False):
+def setup_data_directories(force=False, data_directory="/DATA"):
     """Setup data directories for the ARM system"""
     try:
         # Check if directories are already properly set up
-        if check_data_directories_setup():
+        if check_data_directories_setup(data_directory):
             print("Data directories are already properly set up.")
             return True
 
@@ -140,7 +144,11 @@ def setup_data_directories(force=False):
 
         # Ask user for confirmation
         print("This will create the following directories:")
-        data_dirs = ["/DATA/influxdb2", "/DATA/images", "/DATA/node_exporter"]
+        data_dirs = [
+            os.path.join(data_directory, "influxdb2"),
+            os.path.join(data_directory, "images"),
+            os.path.join(data_directory, "node_exporter"),
+        ]
         for directory in data_dirs:
             print(f"  - {directory}")
         print("And set appropriate ownership and permissions.")

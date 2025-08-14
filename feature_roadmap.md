@@ -1,6 +1,6 @@
 Probably mostly in order
-1) Global config - store active session info
-2) Project config - store path for `cdc`, data dirs, etc
+1) Fully flesh out the project configs and how that plays into system setup
+2) Add `arm-cli system install-tools` for easy configuration of new machines
 3) Add additional tab completes
 4) Additional integration tests on project setup
 5) Deployment tools - possibly using ansible or maybe save that for later

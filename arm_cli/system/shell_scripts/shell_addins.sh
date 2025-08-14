@@ -36,6 +36,9 @@ setup_alias() {
         if [[ $- == *i* ]]; then  # Only define alias in interactive shells
             alias "$alias_name"="$cli_path"
             complete -o default -F _arm_cli_completion "$alias_name" 2>/dev/null || true
+            
+            # Add cdp alias to change to project directory
+            alias cdp='cd "$(arm-cli projects info --field "project_directory" | sed "s|^~|$HOME|")"'
         fi
     fi
 }

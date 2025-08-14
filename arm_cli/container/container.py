@@ -8,7 +8,7 @@ import inquirer
 @click.group()
 def container():
     """Basic tools for managing Docker containers. For more extensive tooling,
-    try lazydocker"""
+    try lazydocker (brew install jesseduffield/lazydocker/lazydocker)"""
     pass
 
 
