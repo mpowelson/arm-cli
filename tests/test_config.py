@@ -29,7 +29,7 @@ class TestConfig:
         """Test that Config can be serialized to dict."""
         config = Config(active_project="test-project")
         data = config.model_dump()
-        assert data == {"active_project": "test-project"}
+        assert data == {"active_project": "test-project", "available_projects": []}
 
 
 class TestConfigFunctions:
@@ -66,7 +66,7 @@ class TestConfigFunctions:
                 with open(config_file, "r") as f:
                     data = json.load(f)
 
-                assert data == {"active_project": "test-project"}
+                assert data == {"active_project": "test-project", "available_projects": []}
 
     def test_load_config_new_file(self):
         """Test that new config file is created when it doesn't exist."""
@@ -87,7 +87,7 @@ class TestConfigFunctions:
                 # Verify file contents
                 with open(config_file, "r") as f:
                     data = json.load(f)
-                assert data == {"active_project": ""}
+                assert data == {"active_project": "", "available_projects": []}
 
     def test_load_config_existing_file(self):
         """Test that existing config file is loaded correctly."""
@@ -124,7 +124,7 @@ class TestConfigFunctions:
                 # Verify file was overwritten with valid JSON
                 with open(config_file, "r") as f:
                     data = json.load(f)
-                assert data == {"active_project": ""}
+                assert data == {"active_project": "", "available_projects": []}
 
     def test_load_config_missing_fields(self):
         """Test that config with missing fields is handled gracefully."""

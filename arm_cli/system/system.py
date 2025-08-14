@@ -41,7 +41,11 @@ def setup(ctx, force):
         print("You can run this setup again later with: arm-cli system setup")
 
     # Setup data directories (may require sudo)
-    if not setup_data_directories(force=force):
+    data_directory = "/DATA"  # Default fallback
+    if project_config and project_config.data_directory:
+        data_directory = project_config.data_directory
+
+    if not setup_data_directories(force=force, data_directory=data_directory):
         print("Data directory setup was not completed.")
         print("You can run this setup again later with: arm-cli system setup")
 

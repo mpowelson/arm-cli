@@ -206,5 +206,5 @@ def test_projects_help(runner):
     assert "activate" in result.output
     assert "info" in result.output
     assert "init" in result.output
-    assert "list" in result.output
+    assert "ls" in result.output
     assert "remove" in result.output
