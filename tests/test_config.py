@@ -3,7 +3,15 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from arm_cli.config import Config, get_config_dir, get_config_file, load_config, save_config
+from arm_cli.config import (
+    Config,
+    ProjectConfig,
+    get_config_dir,
+    get_config_file,
+    load_config,
+    load_project_config,
+    save_config,
+)
 
 
 class TestConfig:
@@ -133,3 +141,68 @@ class TestConfigFunctions:
 
                 # Should use default values for missing fields
                 assert config.active_project == ""
+
+
+class TestProjectConfig:
+    def test_project_config_default_values(self):
+        """Test that ProjectConfig has correct default values."""
+        config = ProjectConfig(name="test-project")
+        assert config.name == "test-project"
+        assert config.description is None
+        assert config.project_directory is None
+        assert config.docker_compose_file is None
+        assert config.data_directory is None
+
+    def test_project_config_with_values(self):
+        """Test that ProjectConfig can be created with custom values."""
+        config = ProjectConfig(
+            name="test-project",
+            description="Test project",
+            project_directory="/tmp/project",
+            docker_compose_file="docker-compose.yml",
+            data_directory="/DATA",
+        )
+        assert config.name == "test-project"
+        assert config.description == "Test project"
+        assert config.project_directory == "/tmp/project"
+        assert config.docker_compose_file == "docker-compose.yml"
+        assert config.data_directory == "/DATA"
+
+    def test_project_config_model_dump(self):
+        """Test that ProjectConfig can be serialized to dict."""
+        config = ProjectConfig(
+            name="test-project", description="Test project", project_directory="/tmp/project"
+        )
+        data = config.model_dump()
+        expected = {
+            "name": "test-project",
+            "description": "Test project",
+            "project_directory": "/tmp/project",
+            "docker_compose_file": None,
+            "data_directory": None,
+        }
+        assert data == expected
+
+    def test_load_default_project_config(self):
+        """Test that the actual default project config JSON can be loaded without Pydantic errors."""
+        from arm_cli.config import get_default_project_config_path
+
+        # Load the actual default config file
+        config_path = get_default_project_config_path()
+
+        # Load the JSON data
+        with open(config_path, "r") as f:
+            data = json.load(f)
+
+        # Create a temporary model with extra="forbid" to catch any schema mismatches
+        # If someone modifies the JSON and forgets to update the Pydantic model, this will fail
+        from pydantic import ConfigDict
+
+        class StrictProjectConfig(ProjectConfig):
+            model_config = ConfigDict(extra="forbid")
+
+        project_config = StrictProjectConfig.model_validate(data)
+
+        # Just verify it loaded successfully (the JSON is the source of truth for values)
+        assert isinstance(project_config, ProjectConfig)
+        assert project_config.name is not None
