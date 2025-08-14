@@ -1,0 +1,18 @@
+{
+  "name": "default",
+  "description": "Default ARM project configuration",
+  "docker_compose_file": "docker-compose.yml",
+  "data_directory": "./data",
+  "resources": {
+    "camera": "orbbec_resource",
+    "audio": "sound_device_resource"
+  },
+  "skills": {
+    "image_capture": "image_capture_skill",
+    "audio_capture": "audio_capture_skill"
+  },
+  "monitoring": {
+    "grafana": "grafana:3000",
+    "influxdb": "influxdb:8086"
+  }
+}

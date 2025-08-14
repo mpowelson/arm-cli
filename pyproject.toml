@@ -40,6 +40,7 @@ include = ["arm_cli*"]
 
 [tool.setuptools.package-data]
 "arm_cli.system.shell_scripts" = ["*.sh", "*.zsh", "*.fish"]
+"arm_cli" = ["../resources/*.json"]
 
 [tool.setuptools_scm]
 write_to = "arm_cli/_version.py"

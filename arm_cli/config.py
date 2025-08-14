@@ -1,8 +1,22 @@
 import json
+import shutil
 from pathlib import Path
+from typing import Dict, Optional
 
 import appdirs
 from pydantic import BaseModel
+
+
+class ProjectConfig(BaseModel):
+    """Configuration schema for individual projects."""
+
+    name: str
+    description: Optional[str] = None
+    docker_compose_file: Optional[str] = None
+    data_directory: Optional[str] = None
+    resources: Optional[Dict[str, str]] = None
+    skills: Optional[Dict[str, str]] = None
+    monitoring: Optional[Dict[str, str]] = None
 
 
 class Config(BaseModel):
@@ -23,6 +37,65 @@ def get_config_file() -> Path:
     return get_config_dir() / "config.json"
 
 
+def get_default_project_config_path() -> Path:
+    """Get the path to the default project configuration in the repository."""
+    # First try to find it relative to the current file (development)
+    current_file = Path(__file__)
+    dev_path = current_file.parent.parent / "resources" / "default_project_config.json"
+
+    if dev_path.exists():
+        return dev_path
+
+    # If not found in development, try to find it in the installed package
+    try:
+        import arm_cli
+
+        package_dir = Path(arm_cli.__file__).parent
+        # When installed, the resources directory is at the root level of the package
+        installed_path = package_dir.parent / "resources" / "default_project_config.json"
+
+        if installed_path.exists():
+            return installed_path
+    except ImportError:
+        pass
+
+    # Fallback: try to find it in the current working directory
+    cwd_path = Path.cwd() / "resources" / "default_project_config.json"
+    if cwd_path.exists():
+        return cwd_path
+
+    raise FileNotFoundError("Could not find default_project_config.json in any expected location")
+
+
+def copy_default_project_config() -> Path:
+    """Copy the default project config from repository to user config directory."""
+    config_dir = get_config_dir()
+    default_config_path = get_default_project_config_path()
+    user_config_path = config_dir / "default_project_config.json"
+
+    if not default_config_path.exists():
+        raise FileNotFoundError(f"Default project config not found at {default_config_path}")
+
+    shutil.copy2(default_config_path, user_config_path)
+    return user_config_path
+
+
+def load_project_config(project_path: str) -> ProjectConfig:
+    """Load a project configuration from file."""
+    config_path = Path(project_path)
+
+    # If it's a relative path, make it relative to the config directory
+    if not config_path.is_absolute():
+        config_path = get_config_dir() / config_path
+
+    if not config_path.exists():
+        raise FileNotFoundError(f"Project config not found at {config_path}")
+
+    with open(config_path, "r") as f:
+        data = json.load(f)
+    return ProjectConfig(**data)
+
+
 def load_config() -> Config:
     """Load configuration from file, creating default if it doesn't exist."""
     config_file = get_config_file()
@@ -39,7 +112,7 @@ def load_config() -> Config:
         return Config(**data)
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         # If config is corrupted, create a new one
-        print(f"Warning: Config file corrupted, creating new default config: " f"{e}")
+        print(f"Warning: Config file corrupted, creating new default config: {e}")
         default_config = Config()
         save_config(default_config)
         return default_config
@@ -54,3 +127,23 @@ def save_config(config: Config) -> None:
 
     with open(config_file, "w") as f:
         json.dump(config.model_dump(), f, indent=2)
+
+
+def get_active_project_config(config: Config) -> Optional[ProjectConfig]:
+    """Get the active project configuration."""
+    if not config.active_project:
+        # No active project set, copy default and set it
+        try:
+            default_path = copy_default_project_config()
+            config.active_project = str(default_path)
+            save_config(config)
+            return load_project_config(config.active_project)
+        except Exception as e:
+            print(f"Error setting up default project config: {e}")
+            return None
+
+    try:
+        return load_project_config(config.active_project)
+    except FileNotFoundError:
+        print(f"Active project config not found at {config.active_project}")
+        return None

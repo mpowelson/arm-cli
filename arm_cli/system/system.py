@@ -1,5 +1,6 @@
 import click
 
+from arm_cli.config import get_active_project_config
 from arm_cli.system.setup_utils import (
     setup_data_directories,
     setup_docker_group,
@@ -18,8 +19,17 @@ def system():
 @click.option("-f", "--force", is_flag=True, help="Skip confirmation prompts")
 @click.pass_context
 def setup(ctx, force):
-    config = ctx.obj["config"]  # noqa: F841 - config available for future use
+    config = ctx.obj["config"]
     """Generic setup (will be refined later)"""
+
+    # Load project configuration
+    project_config = get_active_project_config(config)
+    if project_config:
+        print(f"Setting up system for project: {project_config.name}")
+        if project_config.description:
+            print(f"Description: {project_config.description}")
+    else:
+        print("No active project configuration found. Using default settings.")
 
     setup_xhost(force=force)
 
