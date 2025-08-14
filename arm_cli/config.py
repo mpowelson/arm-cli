@@ -13,7 +13,7 @@ class Config(BaseModel):
 
 def get_config_dir() -> Path:
     """Get the configuration directory for the CLI."""
-    config_dir = Path(appdirs.user_config_dir("mycli"))
+    config_dir = Path(appdirs.user_config_dir("arm-cli"))
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
 
