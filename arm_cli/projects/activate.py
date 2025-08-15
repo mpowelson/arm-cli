@@ -25,7 +25,10 @@ def _activate(ctx, project: Optional[str] = None):
             project_config = get_active_project_config(config)
             if project_config:
                 print(f"Activated default project: {project_config.name}")
-                print(f"Project directory: {project_config.project_directory}")
+                resolved_dir = project_config.get_resolved_project_directory(
+                    getattr(project_config, "_config_file_path", None)
+                )
+                print(f"Project directory: {resolved_dir}")
             else:
                 print("Failed to set up default project.")
                 print_no_projects_message()
@@ -65,7 +68,10 @@ def _activate(ctx, project: Optional[str] = None):
 
     if project_config:
         print(f"Activated project: {project_config.name}")
-        print(f"Project directory: {project_config.project_directory}")
+        resolved_dir = project_config.get_resolved_project_directory(
+            getattr(project_config, "_config_file_path", None)
+        )
+        print(f"Project directory: {resolved_dir}")
     else:
         print(f"Project '{project}' not found in available projects")
         print_available_projects(config)
