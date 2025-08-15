@@ -3,6 +3,8 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from arm_cli.config import (
     Config,
     ProjectConfig,
@@ -206,3 +208,34 @@ class TestProjectConfig:
         # Just verify it loaded successfully (the JSON is the source of truth for values)
         assert isinstance(project_config, ProjectConfig)
         assert project_config.name is not None
+
+    def test_get_resolved_project_directory_absolute(self):
+        """Test that absolute project_directory paths are returned as-is."""
+        config = ProjectConfig(name="test-project", project_directory="/absolute/path")
+        resolved = config.get_resolved_project_directory(Path("/dummy/config.json"))
+        assert resolved == "/absolute/path"
+
+    def test_get_resolved_project_directory_relative(self):
+        """Test that relative project_directory paths are resolved correctly."""
+        config = ProjectConfig(name="test-project", project_directory="relative/path")
+        config_file_path = Path("/config/location/config.json")
+        resolved = config.get_resolved_project_directory(config_file_path)
+        assert resolved == str(Path("/config/location/relative/path").resolve())
+
+    def test_get_resolved_project_directory_none(self):
+        """Test that None project_directory returns None."""
+        config = ProjectConfig(name="test-project")
+        resolved = config.get_resolved_project_directory(Path("/dummy/config.json"))
+        assert resolved is None
+
+    def test_get_resolved_project_directory_no_config_path(self):
+        """Test that relative paths raise an error when no config path provided."""
+        config = ProjectConfig(name="test-project", project_directory="relative/path")
+        with pytest.raises(ValueError, match="config_file_path must be provided"):
+            config.get_resolved_project_directory()
+
+    def test_get_resolved_project_directory_tilde(self):
+        """Test that tilde (~) is expanded to home directory."""
+        config = ProjectConfig(name="test-project", project_directory="~/projects")
+        resolved = config.get_resolved_project_directory(Path("/dummy/config.json"))
+        assert resolved == str(Path.home() / "projects")

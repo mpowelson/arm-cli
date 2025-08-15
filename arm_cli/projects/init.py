@@ -136,7 +136,10 @@ def _init(ctx, project_path: str, name: Optional[str] = None):
     save_config(config)
 
     print(f"Project '{project_config.name}' initialized and set as active")
-    print(f"Project directory: {project_config.project_directory}")
+    resolved_dir = project_config.get_resolved_project_directory(
+        getattr(project_config, "_config_file_path", None)
+    )
+    print(f"Project directory: {resolved_dir}")
 
 
 # Create the command object

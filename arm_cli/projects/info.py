@@ -26,7 +26,13 @@ def _info(ctx, field):
         ]
 
         if field in available_attrs:
-            value = getattr(project_config, field)
+            if field == "project_directory":
+                # Use resolved project directory for the cdp alias
+                value = project_config.get_resolved_project_directory(
+                    getattr(project_config, "_config_file_path", None)
+                )
+            else:
+                value = getattr(project_config, field)
             if value:
                 print(value)
             else:
@@ -44,7 +50,10 @@ def _info(ctx, field):
         if project_config.description:
             print(f"Description: {project_config.description}")
         if project_config.project_directory:
-            print(f"Project Directory: {project_config.project_directory}")
+            resolved_dir = project_config.get_resolved_project_directory(
+                getattr(project_config, "_config_file_path", None)
+            )
+            print(f"Project Directory: {resolved_dir}")
         if project_config.docker_compose_file:
             print(f"Docker Compose File: {project_config.docker_compose_file}")
         if project_config.data_directory:

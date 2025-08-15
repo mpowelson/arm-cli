@@ -3,5 +3,5 @@
   "description": "Default ARM project configuration",
   "docker_compose_file": "docker-compose.yml",
   "data_directory": "/DATA",
-  "project_directory": "~"
+  "project_directory": "."
 }

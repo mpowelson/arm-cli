@@ -1,4 +1,5 @@
 import json
+import os
 import shutil
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -15,6 +16,38 @@ class ProjectConfig(BaseModel):
     project_directory: Optional[str] = None
     docker_compose_file: Optional[str] = None
     data_directory: Optional[str] = None
+
+    def get_resolved_project_directory(
+        self, config_file_path: Optional[Path] = None
+    ) -> Optional[str]:
+        """Get the project directory resolved to an absolute path.
+
+        Args:
+            config_file_path: Path to the config file. If None, uses current working directory.
+
+        Returns:
+            Absolute path to the project directory, or None if project_directory is None.
+        """
+        if self.project_directory is None:
+            return None
+
+        # Handle tilde expansion
+        expanded_path = os.path.expanduser(self.project_directory)
+        project_path = Path(expanded_path)
+
+        # If it's already absolute, return as is
+        if project_path.is_absolute():
+            return str(project_path)
+
+        # If it's relative, resolve it relative to the config file location
+        if config_file_path is None:
+            raise ValueError(
+                "config_file_path must be provided to resolve relative project_directory"
+            )
+        base_path = config_file_path.parent
+
+        resolved_path = (base_path / project_path).resolve()
+        return str(resolved_path)
 
 
 class AvailableProject(BaseModel):
@@ -99,7 +132,13 @@ def load_project_config(project_path: str) -> ProjectConfig:
 
     with open(config_path, "r") as f:
         data = json.load(f)
-    return ProjectConfig(**data)
+
+    project_config = ProjectConfig(**data)
+
+    # Store the config file path for resolving relative project_directory
+    project_config._config_file_path = config_path
+
+    return project_config
 
 
 def add_project_to_list(config: Config, project_path: str, project_name: str) -> None:
