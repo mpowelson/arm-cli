@@ -11,6 +11,7 @@ class Settings(BaseModel):
     """Settings schema for the CLI."""
 
     menu_page_size: int = 20
+    global_context_path: str = "global_context.json"
 
 
 def get_settings_dir() -> Path:
