@@ -39,6 +39,9 @@ setup_alias() {
             
             # Add cdp alias to change to project directory
             alias cdp='cd "$(arm-cli projects info --field "project_directory" | sed "s|^~|$HOME|")"'
+            
+            # Add cdc alias to change to code directory
+            alias cdc='cd "$(arm-cli self settings get cdc_path | sed "s|^~|$HOME|")"'
         fi
     fi
 }

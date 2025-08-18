@@ -12,6 +12,7 @@ class Settings(BaseModel):
 
     menu_page_size: int = 20
     global_context_path: str = "global_context.json"
+    cdc_path: str = "~/code"
 
 
 def get_settings_dir() -> Path:
