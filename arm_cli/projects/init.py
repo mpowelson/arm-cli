@@ -12,6 +12,7 @@ from arm_cli.config import (
     load_project_config,
     save_config,
 )
+from arm_cli.settings import get_setting
 
 
 def _init(ctx, project_path: str, name: Optional[str] = None):
@@ -84,7 +85,7 @@ def _init(ctx, project_path: str, name: Optional[str] = None):
                     message=f"Select a configuration file from {project_dir.name} or use default",
                     choices=choices,
                     carousel=True,
-                    page_size=config.inquirer_page_size,
+                    page_size=get_setting("inquirer_page_size"),
                 )
             ]
 

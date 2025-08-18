@@ -10,6 +10,7 @@ from arm_cli.config import (
     print_available_projects,
     print_no_projects_message,
 )
+from arm_cli.settings import get_setting
 
 
 def _activate(ctx, project: Optional[str] = None):
@@ -47,7 +48,7 @@ def _activate(ctx, project: Optional[str] = None):
                 message="Select a project to activate",
                 choices=choices,
                 carousel=True,
-                page_size=config.inquirer_page_size,
+                page_size=get_setting("inquirer_page_size"),
             )
         ]
 

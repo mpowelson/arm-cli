@@ -4,6 +4,8 @@ import click
 import docker
 import inquirer
 
+from arm_cli.settings import get_setting
+
 
 @click.group()
 def container():
@@ -49,7 +51,7 @@ def attach_container(ctx):
             message="Select a container to attach to",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=config.inquirer_page_size,
+            page_size=get_setting("inquirer_page_size"),
         )
     ]
 
@@ -83,7 +85,7 @@ def restart_container(ctx):
             message="Select a container to restart",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=config.inquirer_page_size,
+            page_size=get_setting("inquirer_page_size"),
         )
     ]
 
@@ -124,7 +126,7 @@ def stop_container(ctx):
             message="Select a container to stop",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=config.inquirer_page_size,
+            page_size=get_setting("inquirer_page_size"),
         )
     ]
 

@@ -10,6 +10,7 @@ from arm_cli.config import (
     remove_project_from_list,
     save_config,
 )
+from arm_cli.settings import get_setting
 
 
 def _remove(ctx, project: Optional[str] = None):
@@ -37,7 +38,7 @@ def _remove(ctx, project: Optional[str] = None):
                 message="Select a project to remove",
                 choices=choices,
                 carousel=True,
-                page_size=config.inquirer_page_size,
+                page_size=get_setting("inquirer_page_size"),
             )
         ]
 

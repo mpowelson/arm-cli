@@ -62,7 +62,6 @@ class Config(BaseModel):
 
     active_project: str = ""
     available_projects: List[AvailableProject] = []
-    inquirer_page_size: int = 20
 
 
 def get_config_dir() -> Path:
