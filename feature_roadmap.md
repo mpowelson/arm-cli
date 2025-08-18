@@ -6,6 +6,7 @@ Probably mostly in order
 5) Deployment tools - possibly using ansible or maybe save that for later
 6) Connect to container registries for skill install
 7) More comprehensive documentation of intent
+8) Explore alternative interactive CLI libraries (e.g., questionary) for better page size control in menus
 
 These are probably not all-encompassing, but it's what I am thinking about right now.
 

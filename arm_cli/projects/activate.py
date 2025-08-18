@@ -48,7 +48,6 @@ def _activate(ctx, project: Optional[str] = None):
                 message="Select a project to activate",
                 choices=choices,
                 carousel=True,
-                page_size=get_setting("menu_page_size"),
             )
         ]
 
