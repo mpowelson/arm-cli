@@ -57,8 +57,8 @@ class AvailableProject(BaseModel):
     path: str
 
 
-class Config(BaseModel):
-    """Configuration schema for the CLI."""
+class GlobalContext(BaseModel):
+    """Global context schema for the CLI."""
 
     active_project: str = ""
     available_projects: List[AvailableProject] = []
@@ -73,7 +73,12 @@ def get_config_dir() -> Path:
 
 def get_config_file() -> Path:
     """Get the path to the configuration file."""
-    return get_config_dir() / "config.json"
+    from arm_cli.settings import get_setting
+
+    # Get the filename from settings, default to "global_context.json"
+    filename_setting = get_setting("global_context_path")
+    filename = filename_setting if isinstance(filename_setting, str) else "global_context.json"
+    return get_config_dir() / filename
 
 
 def get_default_project_config_path() -> Path:
@@ -141,7 +146,7 @@ def load_project_config(project_path: str) -> ProjectConfig:
     return project_config
 
 
-def add_project_to_list(config: Config, project_path: str, project_name: str) -> None:
+def add_project_to_list(config: GlobalContext, project_path: str, project_name: str) -> None:
     """Add a project to the available projects list and set as active."""
     # Remove existing entry if it exists
     config.available_projects = [p for p in config.available_projects if p.path != project_path]
@@ -154,7 +159,7 @@ def add_project_to_list(config: Config, project_path: str, project_name: str) ->
     config.active_project = project_path
 
 
-def get_available_projects(config: Config) -> List[AvailableProject]:
+def get_available_projects(config: GlobalContext) -> List[AvailableProject]:
     """Get the list of available projects."""
     # If no projects are available, ensure the default project is added
     if not config.available_projects:
@@ -168,7 +173,7 @@ def get_available_projects(config: Config) -> List[AvailableProject]:
     return config.available_projects
 
 
-def activate_project(config: Config, project_identifier: str) -> Optional[ProjectConfig]:
+def activate_project(config: GlobalContext, project_identifier: str) -> Optional[ProjectConfig]:
     """Activate a project by path or name."""
     # First try to find by exact path
     for project in config.available_projects:
@@ -187,7 +192,7 @@ def activate_project(config: Config, project_identifier: str) -> Optional[Projec
     return None
 
 
-def remove_project_from_list(config: Config, project_identifier: str) -> bool:
+def remove_project_from_list(config: GlobalContext, project_identifier: str) -> bool:
     """Remove a project from the available projects list by path or name."""
     # First try to find by exact path
     for project in config.available_projects:
@@ -210,29 +215,45 @@ def remove_project_from_list(config: Config, project_identifier: str) -> bool:
     return False
 
 
-def load_config() -> Config:
+def load_config() -> GlobalContext:
     """Load configuration from file, creating default if it doesn't exist."""
     config_file = get_config_file()
 
+    # Check for old config file and migrate if needed
+    old_config_file = get_config_dir() / "config.json"
+    if old_config_file.exists() and not config_file.exists():
+        print(f"Migrating from old config file: {old_config_file}")
+        try:
+            with open(old_config_file, "r") as f:
+                data = json.load(f)
+            config = GlobalContext(**data)
+            save_config(config)
+            # Remove old file after successful migration
+            old_config_file.unlink()
+            print(f"Migration complete. New file: {config_file}")
+            return config
+        except Exception as e:
+            print(f"Migration failed: {e}. Creating new config file.")
+
     if not config_file.exists():
         # Create default config
-        default_config = Config()
+        default_config = GlobalContext()
         save_config(default_config)
         return default_config
 
     try:
         with open(config_file, "r") as f:
             data = json.load(f)
-        return Config(**data)
+        return GlobalContext(**data)
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         # If config is corrupted, create a new one
         print(f"Warning: Config file corrupted, creating new default config: {e}")
-        default_config = Config()
+        default_config = GlobalContext()
         save_config(default_config)
         return default_config
 
 
-def save_config(config: Config) -> None:
+def save_config(config: GlobalContext) -> None:
     """Save configuration to file."""
     config_file = get_config_file()
 
@@ -243,7 +264,7 @@ def save_config(config: Config) -> None:
         json.dump(config.model_dump(), f, indent=2)
 
 
-def get_active_project_config(config: Config) -> Optional[ProjectConfig]:
+def get_active_project_config(config: GlobalContext) -> Optional[ProjectConfig]:
     """Get the active project configuration."""
     if not config.active_project:
         # No active project set, copy default and set it
@@ -275,7 +296,7 @@ def print_no_projects_message() -> None:
     print("No projects available. Use 'arm-cli projects init <path>' to add a project.")
 
 
-def print_available_projects(config: Config) -> None:
+def print_available_projects(config: GlobalContext) -> None:
     """Print the list of available projects."""
     available_projects = get_available_projects(config)
     if available_projects:

@@ -10,6 +10,7 @@ from arm_cli.config import (
     print_available_projects,
     print_no_projects_message,
 )
+from arm_cli.settings import get_setting
 
 
 def _activate(ctx, project: Optional[str] = None):
@@ -43,7 +44,11 @@ def _activate(ctx, project: Optional[str] = None):
         # Create the question
         questions = [
             inquirer.List(
-                "project", message="Select a project to activate", choices=choices, carousel=True
+                "project",
+                message="Select a project to activate",
+                choices=choices,
+                carousel=True,
+                page_size=get_setting("menu_page_size"),
             )
         ]
 

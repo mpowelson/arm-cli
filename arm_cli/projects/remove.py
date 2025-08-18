@@ -10,6 +10,7 @@ from arm_cli.config import (
     remove_project_from_list,
     save_config,
 )
+from arm_cli.settings import get_setting
 
 
 def _remove(ctx, project: Optional[str] = None):
@@ -33,7 +34,11 @@ def _remove(ctx, project: Optional[str] = None):
         # Create the question
         questions = [
             inquirer.List(
-                "project", message="Select a project to remove", choices=choices, carousel=True
+                "project",
+                message="Select a project to remove",
+                choices=choices,
+                carousel=True,
+                page_size=get_setting("menu_page_size"),
             )
         ]
 

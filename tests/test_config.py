@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from arm_cli.config import (
-    Config,
+    GlobalContext,
     ProjectConfig,
     get_config_dir,
     get_config_file,
@@ -16,20 +16,20 @@ from arm_cli.config import (
 )
 
 
-class TestConfig:
-    def test_config_default_values(self):
-        """Test that Config has correct default values."""
-        config = Config()
+class TestGlobalContext:
+    def test_global_context_default_values(self):
+        """Test that GlobalContext has correct default values."""
+        config = GlobalContext()
         assert config.active_project == ""
 
-    def test_config_with_values(self):
-        """Test that Config can be created with custom values."""
-        config = Config(active_project="test-project")
+    def test_global_context_with_values(self):
+        """Test that GlobalContext can be created with custom values."""
+        config = GlobalContext(active_project="test-project")
         assert config.active_project == "test-project"
 
-    def test_config_model_dump(self):
-        """Test that Config can be serialized to dict."""
-        config = Config(active_project="test-project")
+    def test_global_context_model_dump(self):
+        """Test that GlobalContext can be serialized to dict."""
+        config = GlobalContext(active_project="test-project")
         data = config.model_dump()
         assert data == {"active_project": "test-project", "available_projects": []}
 
@@ -52,7 +52,7 @@ class TestConfigFunctions:
 
             config_file = get_config_file()
 
-            assert config_file == Path("/tmp/test_config/config.json")
+            assert config_file == Path("/tmp/test_config/global_context.json")
 
     def test_save_config(self):
         """Test that config can be saved to file."""
@@ -61,7 +61,7 @@ class TestConfigFunctions:
                 config_file = Path(temp_dir) / "config.json"
                 mock_get_config_file.return_value = config_file
 
-                config = Config(active_project="test-project")
+                config = GlobalContext(active_project="test-project")
                 save_config(config)
 
                 assert config_file.exists()
