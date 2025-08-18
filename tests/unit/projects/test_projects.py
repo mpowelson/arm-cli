@@ -7,7 +7,7 @@ import click
 import pytest
 from click.testing import CliRunner
 
-from arm_cli.config import Config, ProjectConfig
+from arm_cli.config import GlobalContext, ProjectConfig
 from arm_cli.projects.projects import projects
 
 
@@ -33,7 +33,7 @@ def temp_project_config():
 @pytest.fixture
 def mock_config(temp_project_config):
     """Create a mock config with an active project."""
-    config = Config(active_project="/tmp/test-project-config.json")
+    config = GlobalContext(active_project="/tmp/test-project-config.json")
     return config
 
 
@@ -42,7 +42,7 @@ def test_projects_info_no_active_project(runner):
     with patch("arm_cli.projects.info.get_active_project_config") as mock_get_config:
         mock_get_config.return_value = None
 
-        result = runner.invoke(projects, ["info"], obj={"config": Config()})
+        result = runner.invoke(projects, ["info"], obj={"config": GlobalContext()})
 
         assert result.exit_code == 0
         assert "No active project configured" in result.output
@@ -191,7 +191,9 @@ def test_projects_info_field_no_active_project(runner):
     with patch("arm_cli.projects.info.get_active_project_config") as mock_get_config:
         mock_get_config.return_value = None
 
-        result = runner.invoke(projects, ["info", "--field", "name"], obj={"config": Config()})
+        result = runner.invoke(
+            projects, ["info", "--field", "name"], obj={"config": GlobalContext()}
+        )
 
         assert result.exit_code == 0
         assert "No active project configured" in result.output
