@@ -90,6 +90,26 @@ def show_settings(ctx):
         print("Settings file does not exist yet.")
 
 
+@settings.command("get")
+@click.argument("key")
+@click.pass_context
+def get_settings_cmd(ctx, key):
+    """Get a specific setting value"""
+    from arm_cli.settings import get_setting
+
+    value = get_setting(key)
+    if value is not None:
+        print(value)
+    else:
+        print(f"Error: Unknown setting '{key}'")
+        # Get available settings to show user
+        from arm_cli.settings import load_settings
+
+        settings = load_settings()
+        print(f"Available settings: {', '.join(settings.model_fields.keys())}")
+        sys.exit(1)
+
+
 @settings.command("set")
 @click.argument("key", required=False)
 @click.argument("value", required=False)
