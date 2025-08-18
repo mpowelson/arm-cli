@@ -84,6 +84,7 @@ def _init(ctx, project_path: str, name: Optional[str] = None):
                     message=f"Select a configuration file from {project_dir.name} or use default",
                     choices=choices,
                     carousel=True,
+                    page_size=config.inquirer_page_size,
                 )
             ]
 

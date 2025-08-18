@@ -7,6 +7,7 @@ import click
 
 from arm_cli import __version__
 from arm_cli.config import load_config
+from arm_cli.config_cmd import config
 from arm_cli.container.container import container
 from arm_cli.projects.projects import projects
 from arm_cli.self.self import self
@@ -24,6 +25,7 @@ def cli(ctx):
 
 
 # Add command groups
+cli.add_command(config)
 cli.add_command(container)
 cli.add_command(projects)
 cli.add_command(self)

@@ -33,7 +33,11 @@ def _remove(ctx, project: Optional[str] = None):
         # Create the question
         questions = [
             inquirer.List(
-                "project", message="Select a project to remove", choices=choices, carousel=True
+                "project",
+                message="Select a project to remove",
+                choices=choices,
+                carousel=True,
+                page_size=config.inquirer_page_size,
             )
         ]
 

@@ -43,7 +43,11 @@ def _activate(ctx, project: Optional[str] = None):
         # Create the question
         questions = [
             inquirer.List(
-                "project", message="Select a project to activate", choices=choices, carousel=True
+                "project",
+                message="Select a project to activate",
+                choices=choices,
+                carousel=True,
+                page_size=config.inquirer_page_size,
             )
         ]
 
