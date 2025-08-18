@@ -10,6 +10,9 @@ from pydantic import BaseModel
 class Settings(BaseModel):
     """Settings schema for the CLI."""
 
+    # Note: menu_page_size is currently not used due to inquirer 3.4.0 not supporting
+    # the page_size parameter in List questions. This setting is kept for potential
+    # future use if we switch to a different interactive library.
     menu_page_size: int = 20
     global_context_path: str = "global_context.json"
     cdc_path: str = "~/code"

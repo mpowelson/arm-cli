@@ -51,11 +51,14 @@ def attach_container(ctx):
             message="Select a container to attach to",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=get_setting("menu_page_size"),
         )
     ]
 
     answers = inquirer.prompt(container_choices)
+    if not answers:
+        print("No container selected.")
+        return
+
     selected_container_name = answers["container"].split(" ")[0]  # Extract name
 
     print(f"Attaching to {selected_container_name}...")
@@ -85,7 +88,6 @@ def restart_container(ctx):
             message="Select a container to restart",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=get_setting("menu_page_size"),
         )
     ]
 
@@ -126,7 +128,6 @@ def stop_container(ctx):
             message="Select a container to stop",
             choices=[f"{container.name} ({container.id[:12]})" for container in containers],
             carousel=True,
-            page_size=get_setting("menu_page_size"),
         )
     ]
 
