@@ -29,10 +29,28 @@ arm-cli --help
 ```
 You can also use:
 
-
 ```bash
 python -m arm_cli --help
 ```
+
+### Container Management
+The CLI includes tools for managing Docker containers:
+
+```bash
+# List running containers
+arm-cli container list
+
+# Attach to a container interactively (sources ROS and interactive entrypoints)
+arm-cli container attach
+
+# Restart a container
+arm-cli container restart
+
+# Stop a container
+arm-cli container stop
+```
+
+For more details on container compliance, see [arm_cli/container/readme.md](arm_cli/container/readme.md).
 ## Development
 
 To contribute to this tool, first checkout the code. Then create a new virtual environment. From the root of the repo:

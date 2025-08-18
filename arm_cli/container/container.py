@@ -63,8 +63,20 @@ def attach_container(ctx):
 
     print(f"Attaching to {selected_container_name}...")
 
+    cmd = """
+    if [ -f /ros_entrypoint.sh ]; then
+        source /ros_entrypoint.sh
+    fi
+    if [ -f /interactive_entrypoint.sh ]; then
+        source /interactive_entrypoint.sh
+    fi
+    exec bash
+    """
+
     try:
-        subprocess.run(["docker", "exec", "-it", selected_container_name, "/bin/bash"], check=True)
+        subprocess.run(
+            ["docker", "exec", "-it", selected_container_name, "bash", "-c", cmd], check=True
+        )
     except subprocess.CalledProcessError as e:
         print(f"Error attaching to container: {e}")
     except KeyboardInterrupt:
