@@ -10,7 +10,7 @@ from pydantic import BaseModel
 class Settings(BaseModel):
     """Settings schema for the CLI."""
 
-    inquirer_page_size: int = 20
+    menu_page_size: int = 20
 
 
 def get_settings_dir() -> Path:

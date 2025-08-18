@@ -38,7 +38,7 @@ def _remove(ctx, project: Optional[str] = None):
                 message="Select a project to remove",
                 choices=choices,
                 carousel=True,
-                page_size=get_setting("inquirer_page_size"),
+                page_size=get_setting("menu_page_size"),
             )
         ]
 
