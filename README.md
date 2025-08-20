@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/arm-cli.svg)](https://pypi.org/project/arm-cli/)
 [![Changelog](https://img.shields.io/github/v/release/mpowelson/arm-cli?include_prereleases&label=changelog)](https://github.com/mpowelson/arm-cli/releases)
 [![Tests](https://github.com/mpowelson/arm-cli/actions/workflows/test.yml/badge.svg)](https://github.com/mpowelson/arm-cli/actions/workflows/test.yml)
+[![CodeQL Analysis](https://github.com/mpowelson/arm-cli/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/mpowelson/arm-cli/actions/workflows/codeql-analysis.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/mpowelson/arm-cli/blob/master/LICENSE)
 
 Experimental CLI for deploying robotic applications
