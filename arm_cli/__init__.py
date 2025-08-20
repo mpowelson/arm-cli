@@ -1,5 +1,10 @@
 """arm_cli package metadata."""
 
+from beartype.claw import beartype_this_package
+
+# Enable beartype on the package without polluting package __init__
+beartype_this_package()
+
 # Expose package version via setuptools-scm only
 try:
     from ._version import version as __version__  # type: ignore[attr-defined]

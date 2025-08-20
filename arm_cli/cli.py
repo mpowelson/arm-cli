@@ -1,8 +1,3 @@
-from beartype.claw import beartype_this_package
-
-# Enable beartype on the package without polluting package __init__
-beartype_this_package()
-
 import click
 
 from arm_cli import __version__

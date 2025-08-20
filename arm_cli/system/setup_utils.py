@@ -6,6 +6,7 @@ import sys
 import click
 
 from arm_cli.system.shell_scripts import detect_shell, get_current_shell_addins
+from arm_cli.utils.safe_subprocess import safe_run, sudo_run
 
 
 def get_original_user():
@@ -17,7 +18,7 @@ def get_original_user():
 
     # Fallback: try to get from who am i
     try:
-        result = subprocess.run(["who", "am", "i"], capture_output=True, text=True, check=True)
+        result = safe_run(["who", "am", "i"], capture_output=True, text=True, check=True)
         if result.stdout.strip():
             return result.stdout.strip().split()[0]
     except (subprocess.CalledProcessError, IndexError):
@@ -33,13 +34,13 @@ def get_original_user_uid_gid():
 
     try:
         # Get UID
-        uid_result = subprocess.run(
+        uid_result = safe_run(
             ["id", "-u", original_user], capture_output=True, text=True, check=True
         )
         uid = int(uid_result.stdout.strip())
 
         # Get GID
-        gid_result = subprocess.run(
+        gid_result = safe_run(
             ["id", "-g", original_user], capture_output=True, text=True, check=True
         )
         gid = int(gid_result.stdout.strip())
@@ -53,7 +54,7 @@ def get_original_user_uid_gid():
 def check_xhost_setup():
     """Check if xhost is already configured for Docker"""
     try:
-        result = subprocess.run(["xhost"], capture_output=True, text=True, check=True)
+        result = safe_run(["xhost"], capture_output=True, text=True, check=True)
         return "LOCAL:docker" in result.stdout
     except subprocess.CalledProcessError:
         return False
@@ -79,7 +80,7 @@ def setup_xhost(force=False):
                 print("X11 setup cancelled.")
                 return
 
-        subprocess.run(["xhost", "+local:docker"], check=True)
+        safe_run(["xhost", "+local:docker"], check=True)
         print("xhost configured successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error configuring xhost: {e}")
@@ -88,7 +89,7 @@ def setup_xhost(force=False):
 def check_sudo_privileges():
     """Check if the user has sudo privileges"""
     try:
-        subprocess.run(["sudo", "-n", "true"], check=True, capture_output=True)
+        sudo_run(["-n", "true"], check=True, capture_output=True)
         return True
     except subprocess.CalledProcessError:
         return False
@@ -164,18 +165,18 @@ def setup_data_directories(force=False, data_directory="/DATA"):
         print("Creating directories and setting permissions...")
 
         # Create all directories in one sudo command
-        mkdir_cmd = ["sudo", "mkdir", "-p"] + data_dirs
-        subprocess.run(mkdir_cmd, check=True)
+        mkdir_cmd = ["mkdir", "-p"] + data_dirs
+        sudo_run(mkdir_cmd, check=True)
         print("Created directories.")
 
         # Set ownership for all directories in one sudo command
-        chown_cmd = ["sudo", "chown", "-R", f"{uid}:{gid}"] + data_dirs
-        subprocess.run(chown_cmd, check=True)
+        chown_cmd = ["chown", "-R", f"{uid}:{gid}"] + data_dirs
+        sudo_run(chown_cmd, check=True)
         print("Set ownership.")
 
         # Set permissions for all directories in one sudo command
-        chmod_cmd = ["sudo", "chmod", "-R", "775"] + data_dirs
-        subprocess.run(chmod_cmd, check=True)
+        chmod_cmd = ["chmod", "-R", "775"] + data_dirs
+        sudo_run(chmod_cmd, check=True)
         print("Set permissions.")
 
         print("Data directories setup completed successfully.")
@@ -193,7 +194,7 @@ def setup_data_directories(force=False, data_directory="/DATA"):
 def check_docker_group_setup():
     """Check if the user is already in the docker group"""
     try:
-        result = subprocess.run(["id", "-nG"], capture_output=True, text=True, check=True)
+        result = safe_run(["id", "-nG"], capture_output=True, text=True, check=True)
         groups = result.stdout.strip().split()
         return "docker" in groups
     except subprocess.CalledProcessError:
@@ -225,7 +226,7 @@ def setup_docker_group(force=False):
 
         # Add user to docker group (use original user when running with sudo)
         username = get_original_user()
-        subprocess.run(["sudo", "usermod", "-aG", "docker", username], check=True)
+        sudo_run(["usermod", "-aG", "docker", username], check=True)
 
         print(f"Added {username} to docker group successfully.")
         print("Please log out and back in for the docker group changes to take effect,")
