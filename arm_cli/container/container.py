@@ -5,6 +5,7 @@ import docker
 import inquirer
 
 from arm_cli.settings import get_setting
+from arm_cli.utils.safe_subprocess import safe_run, sudo_run
 
 
 @click.group()
@@ -74,9 +75,7 @@ def attach_container(ctx):
     """
 
     try:
-        subprocess.run(
-            ["docker", "exec", "-it", selected_container_name, "bash", "-c", cmd], check=True
-        )
+        safe_run(["docker", "exec", "-it", selected_container_name, "bash", "-c", cmd], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error attaching to container: {e}")
     except KeyboardInterrupt:

@@ -14,6 +14,7 @@ from arm_cli.config import (
     save_config,
 )
 from arm_cli.settings import get_setting, load_settings, save_settings, set_setting
+from arm_cli.utils.safe_subprocess import safe_run, sudo_run
 
 
 @click.group()
@@ -49,11 +50,11 @@ def update(ctx, source, force):
 
         # Clear Python import cache
         print("Clearing Python caches...")
-        subprocess.run(["rm", "-rf", os.path.expanduser("~/.cache/pip")])
-        subprocess.run(["python", "-c", "import importlib; importlib.invalidate_caches()"])
+        safe_run(["rm", "-rf", os.path.expanduser("~/.cache/pip")])
+        safe_run(["python", "-c", "import importlib; importlib.invalidate_caches()"])
 
         # Install from the provided source path
-        subprocess.run([sys.executable, "-m", "pip", "install", "-e", source], check=True)
+        safe_run([sys.executable, "-m", "pip", "install", "-e", source], check=True)
         print(f"arm-cli installed from source at {source} successfully!")
     else:
         print("Updating arm-cli from PyPI...")
@@ -63,7 +64,7 @@ def update(ctx, source, force):
                 print("Update cancelled.")
                 return
 
-        subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "arm-cli"], check=True)
+        safe_run([sys.executable, "-m", "pip", "install", "--upgrade", "arm-cli"], check=True)
         print("arm-cli updated successfully!")
 
 
