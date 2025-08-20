@@ -1,0 +1,54 @@
+name: Security Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 0' # weekly security scan on Sundays at 2 AM
+
+jobs:
+  security:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml]
+
+      - name: Make Bandit helper executable
+        run: chmod +x scripts/linters/run_bandit.sh
+
+      - name: Run Bandit security scan
+        run: ./scripts/linters/run_bandit.sh
+
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
+          retention-days: 30
+
+      - name: Check for high severity issues
+        if: failure()
+        run: echo "Bandit reported HIGH severity issues. See previous step output and artifact."
