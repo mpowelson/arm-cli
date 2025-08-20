@@ -55,6 +55,7 @@ target-version = ['py38']
 profile = "black"
 line_length = 100
 multi_line_output = 3
+extend_skip = ["arm_cli/_version.py"]
 
 [tool.mypy]
 python_version = "3.8"
