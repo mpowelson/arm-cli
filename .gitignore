@@ -11,3 +11,4 @@ dist/
 *.egg-info
 .DS_Store
 _version.py
+bandit-report.json

@@ -30,6 +30,7 @@ dev = [
   "pytest",
   "flake8",
   "mypy",
+  "bandit[toml]",
 ]
 
 [tool.setuptools]
@@ -60,3 +61,8 @@ python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv", "env", ".env"]
+skips = ["B101", "B601"]
+targets = ["arm_cli"]
