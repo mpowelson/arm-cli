@@ -60,14 +60,14 @@ def _activate(ctx, project: Optional[str] = None):
             # Extract project name (remove the active indicator if present)
             selected_choice = answers["project"]
             project = selected_choice.replace(" *", "")
+            if project is None:
+                raise RuntimeError("Project name cannot be None")
 
         except KeyboardInterrupt:
             print("\nCancelled.")
             return
 
     # Try to activate the project
-    # At this point, project is guaranteed to be a string
-    assert project is not None  # type guard
     project_config = activate_project(config, project)
 
     if project_config:

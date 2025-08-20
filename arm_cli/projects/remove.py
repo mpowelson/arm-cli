@@ -50,14 +50,14 @@ def _remove(ctx, project: Optional[str] = None):
             # Extract project name (remove the active indicator if present)
             selected_choice = answers["project"]
             project = selected_choice.replace(" *", "")
+            if project is None:
+                raise RuntimeError("Project name cannot be None")
 
         except KeyboardInterrupt:
             print("\nCancelled.")
             return
 
     # Try to remove the project
-    # At this point, project is guaranteed to be a string
-    assert project is not None  # type guard
 
     # Check if this is the active project
     available_projects = get_available_projects(config)
