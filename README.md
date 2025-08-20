@@ -6,7 +6,7 @@
 [![CodeQL Analysis](https://github.com/mpowelson/arm-cli/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/mpowelson/arm-cli/actions/workflows/codeql-analysis.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/mpowelson/arm-cli/blob/master/LICENSE)
 
-Experimental CLI for deploying robotic applications
+An experimental CLI for deploying robotic applications with opinionated defaults tailored for the ARM ecosystem.
 
 ## Installation
 
