@@ -38,26 +38,30 @@ fi
 print_status "Starting linting checks for arm-cli..."
 print_status "Ensuring required tools are installed..."
 python -m pip install --upgrade pip >/dev/null
-python -m pip install black==24.8.0 isort==5.13.2 >/dev/null
+python -m pip install black==24.8.0 isort==5.13.2 bandit[toml] >/dev/null
 
 # Run Black (code formatter)
 print_status "Running Black (code formatter)..."
 if black --check .; then
     print_success "Black check passed - code is properly formatted"
+    BLACK_STATUS="PASSED"
 else
     print_error "Black check failed - code needs formatting"
     print_status "Run 'black .' to automatically format the code"
     BLACK_FAILED=true
+    BLACK_STATUS="FAILED"
 fi
 
 # Run isort (import sorter)
 print_status "Running isort (import sorter)..."
 if isort --check-only .; then
     print_success "isort check passed - imports are properly sorted"
+    ISORT_STATUS="PASSED"
 else
     print_error "isort check failed - imports need sorting"
     print_status "Run 'isort .' to automatically sort imports"
     ISORT_FAILED=true
+    ISORT_STATUS="FAILED"
 fi
 
 # # Run Flake8 (style checker)
@@ -68,6 +72,18 @@ fi
 #     print_error "Flake8 check failed - style issues found"
 #     FLAKE8_FAILED=true
 # fi
+
+# Run Bandit (security checker)
+print_status "Running Bandit (security checker)..."
+if ./scripts/linters/run_bandit.sh; then
+    print_success "Bandit check passed!"
+    BANDIT_STATUS="PASSED"
+else
+    print_error "Bandit found HIGH severity issues!"
+    BANDIT_FAILED=true
+    BANDIT_STATUS="FAILED"
+fi
+
 
 # # Run MyPy (type checker)
 # print_status "Running MyPy (type checker)..."
@@ -81,17 +97,29 @@ fi
 # Summary
 echo
 print_status "Linting Summary:"
-if [ "$BLACK_FAILED" = true ] || [ "$ISORT_FAILED" = true ] || [ "$FLAKE8_FAILED" = true ] || [ "$MYPY_FAILED" = true ]; then
-    print_error "Some linting checks failed!"
-    echo
-    print_status "To fix formatting issues:"
-    echo "  black ."
-    echo "  isort ."
-    echo
-    print_status "To run individual linters:"
-    echo "  flake8 ."
-    echo "  mypy ."
+
+# Black summary
+echo "- Black: ${BLACK_STATUS:-SKIPPED}"
+if [ "$BLACK_STATUS" = "FAILED" ]; then
+    echo "  run: black ."
+fi
+
+# isort summary
+echo "- isort: ${ISORT_STATUS:-SKIPPED}"
+if [ "$ISORT_STATUS" = "FAILED" ]; then
+    echo "  run: isort ."
+fi
+
+# Bandit summary
+echo "- Bandit: ${BANDIT_STATUS:-SKIPPED}"
+if [ "$BANDIT_STATUS" = "FAILED" ]; then
+    echo "  run: ./scripts/linters/run_bandit.sh"
+fi
+
+# Final result
+if [ "$BLACK_FAILED" = true ] || [ "$ISORT_FAILED" = true ] || [ "$BANDIT_FAILED" = true ]; then
+    print_error "One or more checks failed. See above for commands to rerun failed linters."
     exit 1
 else
     print_success "All linting checks passed! 🎉"
-fi 
+fi
