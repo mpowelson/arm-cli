@@ -1,0 +1,44 @@
+[
+  {
+    "content": "ARM CLI is an experimental command-line interface for deploying robotic applications. It provides tools for managing containers, projects, system setup, and more. The CLI is built using Python Click and supports various commands organized into logical groups.",
+    "metadata": {
+      "source": "README.md",
+      "section": "overview"
+    }
+  },
+  {
+    "content": "The guide command group provides help resources including cheatsheet, documentation, and chatbot features. Use 'arm-cli guide --help' to see all available guide commands. The chatbot feature can be enabled with 'arm-cli guide chatbot enable' and provides RAG capabilities for answering questions about ARM CLI.",
+    "metadata": {
+      "source": "guide.md",
+      "section": "guide"
+    }
+  },
+  {
+    "content": "Container management commands allow you to work with Docker containers. Use 'arm-cli container --help' to see available container commands. The container group provides tools for building, running, and managing Docker containers for robotic applications.",
+    "metadata": {
+      "source": "container.md",
+      "section": "container"
+    }
+  },
+  {
+    "content": "Project management commands help you organize and manage ARM projects. Use 'arm-cli projects --help' to see available project commands. You can initialize new projects, activate existing ones, list projects, and get project information.",
+    "metadata": {
+      "source": "projects.md",
+      "section": "projects"
+    }
+  },
+  {
+    "content": "System commands help you manage the system that ARM CLI is running on. Use 'arm-cli system --help' to see available system commands. The system setup command configures data directories, Docker groups, and shell integration.",
+    "metadata": {
+      "source": "system.md",
+      "section": "system"
+    }
+  },
+  {
+    "content": "The chatbot feature uses RAG (Retrieval-Augmented Generation) to provide intelligent responses based on documentation. It uses Sentence Transformers for embeddings and ChromaDB for vector storage. The chatbot can load local documentation files and fetch remote documentation when internet is available.",
+    "metadata": {
+      "source": "chatbot.md",
+      "section": "chatbot"
+    }
+  }
+]

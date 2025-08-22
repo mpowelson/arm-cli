@@ -18,6 +18,7 @@ dependencies = [
   "docker",
   "inquirer",
   "pydantic",
+  "requests",
 ]
 
 [project.scripts]
@@ -31,6 +32,10 @@ dev = [
   "flake8",
   "mypy",
   "bandit[toml]",
+]
+chatbot = [
+  "sentence-transformers",
+  "chromadb",
 ]
 
 [tool.setuptools]

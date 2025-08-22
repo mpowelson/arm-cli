@@ -1,5 +1,7 @@
 import click
 
+from arm_cli.guide.chatbot import chatbot
+
 
 @click.group()
 def guide():
@@ -19,7 +21,5 @@ def documentation():
     print("Documentation stub")
 
 
-@guide.command()
-def chatbot():
-    """Access ARM CLI chatbot"""
-    print("Chatbot stub")
+# Add chatbot subcommands
+guide.add_command(chatbot)
