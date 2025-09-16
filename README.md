@@ -68,6 +68,20 @@ To run the tests:
 ```bash
 python -m pytest
 ```
+### Git hooks (pre-commit)
+
+This repository includes a `.pre-commit-config.yaml` to enforce code style and basic quality checks locally.
+
+```bash
+# Install the pre-commit framework in your development environment
+pip install pre-commit
+
+# Register the Git hooks for this repository
+pre-commit install
+
+# (Optional) Run against all files once
+pre-commit run --all-files
+```
 ### Troubleshooting
 
 - If editable install fails, ensure you have a modern toolchain:
