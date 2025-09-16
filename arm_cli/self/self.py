@@ -54,8 +54,45 @@ def update(ctx, source, force):
         safe_run(["python", "-c", "import importlib; importlib.invalidate_caches()"])
 
         # Install from the provided source path
-        safe_run([sys.executable, "-m", "pip", "install", "-e", source], check=True)
-        print(f"arm-cli installed from source at {source} successfully!")
+        try:
+            # Prefer editable install for developer workflows
+            safe_run([sys.executable, "-m", "pip", "install", "-e", source], check=True)
+            print(f"arm-cli installed from source (editable) at {source} successfully!")
+        except subprocess.CalledProcessError:
+            # Any failure on editable install: fall back to a standard install
+            print("Editable install failed. Falling back to a standard install...")
+            try:
+                safe_run([sys.executable, "-m", "pip", "install", source], check=True)
+                print(f"arm-cli installed from source (standard) at {source} successfully!")
+            except subprocess.CalledProcessError:
+                # Provide guidance without mutating the user's environment
+                print(
+                    "Standard install also failed. This is typically due to outdated build tooling "
+                    "being pulled during build isolation (e.g., old setuptools).",
+                    file=sys.stderr,
+                )
+                print(
+                    "You can resolve this by upgrading build tools, then retrying:",
+                    file=sys.stderr,
+                )
+                print(
+                    "  python -m pip install --upgrade pip setuptools wheel build setuptools-scm",
+                    file=sys.stderr,
+                )
+                print(
+                    "  python -m pip install .    # or: python -m pip install -e .",
+                    file=sys.stderr,
+                )
+                print(
+                    "Alternatively, if you already upgraded tools in this environment, you can bypass "
+                    "build isolation:",
+                    file=sys.stderr,
+                )
+                print(
+                    "  PIP_NO_BUILD_ISOLATION=1 python -m pip install .",
+                    file=sys.stderr,
+                )
+                raise
     else:
         print("Updating arm-cli from PyPI...")
 
