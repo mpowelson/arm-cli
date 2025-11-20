@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 import click
 import docker
@@ -17,8 +18,24 @@ def container():
 
 def get_running_containers():
     """Retrieve a list of running Docker containers"""
-    client = docker.from_env()
-    return client.containers.list(filters={"status": "running"})
+    try:
+        client = docker.from_env()
+        return client.containers.list(filters={"status": "running"})
+    except docker.errors.DockerException as e:
+        error_msg = str(e)
+        print("Error: Unable to connect to Docker daemon.", file=sys.stderr)
+        print(f"Details: {error_msg}", file=sys.stderr)
+        print("\nPossible solutions:", file=sys.stderr)
+        print("  1. Ensure Docker daemon is running: sudo systemctl start docker", file=sys.stderr)
+        print(
+            "  2. Add your user to the docker group: sudo usermod -aG docker $USER", file=sys.stderr
+        )
+        print("     (You'll need to log out and back in for this to take effect)", file=sys.stderr)
+        print("  3. Check Docker socket permissions: ls -la /var/run/docker.sock", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: Unexpected error connecting to Docker: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 @container.command("list")
@@ -116,6 +133,9 @@ def restart_container(ctx):
         container = client.containers.get(selected_container_name)
         container.restart()
         print(f"Container {selected_container_name} restarted successfully.")
+    except docker.errors.DockerException as e:
+        print(f"Error: Unable to connect to Docker daemon: {e}", file=sys.stderr)
+        sys.exit(1)
     except docker.errors.NotFound:
         print(f"Error: Container {selected_container_name} not found.")
     except docker.errors.APIError as e:
@@ -156,6 +176,9 @@ def stop_container(ctx):
         container = client.containers.get(selected_container_name)
         container.stop()
         print(f"Container {selected_container_name} stopped successfully.")
+    except docker.errors.DockerException as e:
+        print(f"Error: Unable to connect to Docker daemon: {e}", file=sys.stderr)
+        sys.exit(1)
     except docker.errors.NotFound:
         print(f"Error: Container {selected_container_name} not found.")
     except docker.errors.APIError as e:

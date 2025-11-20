@@ -15,7 +15,7 @@ dependencies = [
   "beartype",
   "click",
   "click-completion",
-  "docker",
+  "docker>=7.0.0",
   "inquirer",
   "pydantic",
 ]
