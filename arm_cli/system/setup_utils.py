@@ -1,4 +1,5 @@
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -263,7 +264,79 @@ def setup_shell(force=False):
             bashrc_path = os.path.expanduser("~/.bashrc")
 
         line = f"source {get_current_shell_addins()}"
-        if not is_line_in_file(line, bashrc_path):
+        # Detect any existing sourcing of shell_addins.sh (even from old paths)
+        existing_lines = []
+        try:
+            with open(bashrc_path, "r") as f:
+                for file_line in f:
+                    stripped = file_line.strip()
+                    if (
+                        stripped.startswith("source")
+                        and "/arm_cli/system/shell_scripts/shell_addins.sh" in stripped
+                    ):
+                        existing_lines.append(stripped)
+        except FileNotFoundError:
+            existing_lines = []
+
+        # If there are old references that don't match the current path, warn the user
+        outdated_lines = [old_line for old_line in existing_lines if old_line != line]
+        if outdated_lines:
+            click.secho(
+                "Warning: Found old shell addins entries in ~/.bashrc that reference a previous Python/site-packages path.",
+                fg="yellow",
+                err=True,
+            )
+            for old in outdated_lines:
+                click.secho(f"  - {old}", fg="yellow", err=True)
+            click.secho(
+                "It is recommended to remove these old lines to avoid duplicate sourcing.",
+                fg="yellow",
+                err=True,
+            )
+
+            # Offer to update outdated entries in-place to the current path
+            if force or click.confirm(
+                "Do you want me to update these outdated entries to the current path now? "
+                "A backup will be saved to /tmp/.bashrc_backup."
+            ):
+                try:
+                    # Backup current ~/.bashrc
+                    shutil.copyfile(bashrc_path, "/tmp/.bashrc_backup")
+                    with open(bashrc_path, "r") as f:
+                        contents = f.readlines()
+                    new_contents = []
+                    for file_line in contents:
+                        if (
+                            file_line.strip().startswith("source")
+                            and "/arm_cli/system/shell_scripts/shell_addins.sh" in file_line
+                            and file_line.strip() != line
+                        ):
+                            new_contents.append(line + "\n")
+                        else:
+                            new_contents.append(file_line)
+                    with open(bashrc_path, "w") as f:
+                        f.writelines(new_contents)
+                    # Refresh existing_lines state after modification
+                    existing_lines = []
+                    for file_line in new_contents:
+                        stripped = file_line.strip()
+                        if (
+                            stripped.startswith("source")
+                            and "/arm_cli/system/shell_scripts/shell_addins.sh" in stripped
+                        ):
+                            existing_lines.append(stripped)
+                    print(
+                        "Updated outdated shell addins entries in ~/.bashrc (backup at /tmp/.bashrc_backup)"
+                    )
+                except Exception as e:
+                    click.secho(
+                        f"Failed to update ~/.bashrc automatically: {e}",
+                        fg="yellow",
+                        err=True,
+                    )
+
+        # If the current line is not present, append it
+        if line not in existing_lines:
             print(f'Adding \n"{line}"\nto {bashrc_path}')
             if not force:
                 if not click.confirm("Do you want to add shell autocomplete to ~/.bashrc?"):
