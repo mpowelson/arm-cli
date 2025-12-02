@@ -3,6 +3,7 @@ import click
 from arm_cli import __version__
 from arm_cli.config import load_config
 from arm_cli.container.container import container
+from arm_cli.guide.guide import guide
 from arm_cli.projects.projects import projects
 from arm_cli.self.self import self
 from arm_cli.system.system import system
@@ -20,6 +21,7 @@ def cli(ctx):
 
 # Add command groups
 cli.add_command(container)
+cli.add_command(guide)
 cli.add_command(projects)
 cli.add_command(self)
 cli.add_command(system)
