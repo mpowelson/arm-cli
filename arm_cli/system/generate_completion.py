@@ -2,10 +2,21 @@
 
 import click
 
+# Default aliases for arm-cli
+DEFAULT_ALIASES = ["arm-cli"]
 
-def generate_completion_script():
-    """Generate static bash completion by introspecting the CLI"""
+
+def generate_completion_script(aliases: list[str] | None = None):
+    """Generate static bash completion by introspecting the CLI
+
+    Args:
+        aliases: List of command names to enable completion for.
+                 Defaults to ["arm-cli"]. Examples: ["arm-cli", "arm", "aa"]
+    """
     from arm_cli.cli import cli
+
+    if aliases is None:
+        aliases = DEFAULT_ALIASES
 
     # Collect commands and flags at each level
     commands = {}
@@ -51,22 +62,24 @@ def generate_completion_script():
     collect_commands(cli)
 
     # Generate bash script
-    script = """#!/usr/bin/env bash
+    aliases_comment = ", ".join(aliases)
+    script = f"""#!/usr/bin/env bash
 # Bash completion for arm-cli
 # Auto-generated from CLI structure - DO NOT EDIT MANUALLY
 # Regenerate with: arm-cli system setup
+# Enabled for: {aliases_comment}
 
-_arm_cli_completion() {
+_arm_cli_completion() {{
     local cur prev words cword
     COMPREPLY=()
     
     # Get current completion context
-    _get_comp_words_by_ref -n : cur prev words cword 2>/dev/null || {
-        cur="${COMP_WORDS[COMP_CWORD]}"
-        prev="${COMP_WORDS[COMP_CWORD-1]}"
-        words=("${COMP_WORDS[@]}")
+    _get_comp_words_by_ref -n : cur prev words cword 2>/dev/null || {{
+        cur="${{COMP_WORDS[COMP_CWORD]}}"
+        prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+        words=("${{COMP_WORDS[@]}}")
         cword=$COMP_CWORD
-    }
+    }}
     
 """
 
@@ -142,8 +155,11 @@ _arm_cli_completion() {
     return 0
 }
 
-complete -F _arm_cli_completion arm-cli
 """
+
+    # Register completion for all aliases
+    for alias in aliases:
+        script += f"complete -F _arm_cli_completion {alias}\n"
 
     return script
 

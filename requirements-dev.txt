@@ -1,0 +1,8 @@
+# Install dependencies from local paths first
+-e ../arm-robotics-distro-utils/arm_robotics_distro_pydantic
+-e ../arm-robotics-distro-utils/arm_robotics_distro_runtime_generation
+-e ../arm-robotics-sdk
+
+# Then install CLI with dev dependencies
+-e .[dev]
+

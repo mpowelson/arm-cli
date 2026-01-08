@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 import appdirs
 from pydantic import BaseModel
@@ -16,6 +16,10 @@ class Settings(BaseModel):
     menu_page_size: int = 20
     global_context_path: str = "global_context.json"
     cdc_path: str = "~/code"
+
+    # CLI aliases for shell completion (e.g., ["arm-cli", "arm", "aa"])
+    # Run 'arm-cli system setup' after changing to regenerate completions
+    cli_aliases: list[str] = ["arm-cli"]
 
 
 def get_settings_dir() -> Path:
@@ -63,13 +67,13 @@ def save_settings(settings: Settings) -> None:
         json.dump(settings.model_dump(), f, indent=2)
 
 
-def get_setting(key: str) -> Optional[Union[int, str, bool]]:
+def get_setting(key: str) -> Optional[Any]:
     """Get a specific setting value."""
     settings = load_settings()
     return getattr(settings, key, None)
 
 
-def set_setting(key: str, value: Union[int, str, bool]) -> None:
+def set_setting(key: str, value: Any) -> None:
     """Set a specific setting value."""
     settings = load_settings()
     if hasattr(settings, key):

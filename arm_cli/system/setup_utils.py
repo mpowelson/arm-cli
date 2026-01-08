@@ -287,12 +287,17 @@ def setup_shell(force=False):
         # Generate bash completion script from CLI structure
         completion_path = stable_shell_path.parent / "completion.bash"
         try:
+            from arm_cli.settings import load_settings
             from arm_cli.system.generate_completion import generate_completion_script
 
-            completion_script = generate_completion_script()
+            settings = load_settings()
+            aliases = settings.cli_aliases
+            completion_script = generate_completion_script(aliases)
             with open(completion_path, "w") as f:
                 f.write(completion_script)
             print(f"Generated completion script at {completion_path}")
+            if len(aliases) > 1:
+                print(f"  Completions enabled for: {', '.join(aliases)}")
         except Exception as e:
             print(f"Warning: Could not generate completion script: {e}")
 
@@ -307,6 +312,13 @@ def setup_shell(force=False):
 # This file is sourced for all environments.
 # Add your global aliases, functions, and environment variables here.
 
+
+# Example: Short aliases for arm-cli
+# To enable tab completion for these, run:
+#   arm-cli self settings set cli_aliases '["arm-cli", "arm", "aa"]'
+#   arm-cli system setup
+# alias arm='arm-cli'
+# alias aa='arm-cli'
 
 # Example: Change to dev project
 # cdp() {
