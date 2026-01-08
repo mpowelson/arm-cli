@@ -1,5 +1,4 @@
 import click
-
 from arm_robotics_sdk import build, project
 
 
@@ -10,12 +9,12 @@ def _build(ctx, clean: bool = False):
         if not active_path:
             print("No active application. Use 'arm app open <path>' first.")
             raise click.Abort()
-        
+
         print(f"Building application at {active_path}...")
-        
+
         # Build the project
         success, built_dirs, errors = build.build_project(active_path, [], clean=clean)
-        
+
         if success:
             print("\nBuild successful!")
             if built_dirs:
@@ -29,7 +28,7 @@ def _build(ctx, clean: bool = False):
                 for error in errors:
                     print(f"  {error}")
             raise click.Abort()
-        
+
     except Exception as e:
         print(f"Error building application: {e}")
         raise click.Abort()
@@ -41,4 +40,3 @@ build = click.command(name="build")(
         click.pass_context(_build)
     )
 )
-

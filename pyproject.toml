@@ -12,6 +12,7 @@ requires-python = ">=3.8"
 dynamic = ["version"]
 dependencies = [
   "appdirs",
+  "arm-robotics-sdk",
   "beartype",
   "click",
   "click-completion",
