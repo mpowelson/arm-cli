@@ -8,14 +8,12 @@ import appdirs
 from pydantic import BaseModel
 
 
-class ProjectConfig(BaseModel):
-    """Configuration schema for individual projects."""
+class EnvironmentConfig(BaseModel):
+    """Configuration schema for development environments."""
 
     name: str
     description: Optional[str] = None
     project_directory: Optional[str] = None
-    docker_compose_file: Optional[str] = None
-    data_directory: Optional[str] = None
 
     def get_resolved_project_directory(
         self, config_file_path: Optional[Path] = None
@@ -124,7 +122,7 @@ def copy_default_project_config() -> Path:
     return user_config_path
 
 
-def load_project_config(project_path: str) -> ProjectConfig:
+def load_project_config(project_path: str) -> EnvironmentConfig:
     """Load a project configuration from file."""
     config_path = Path(project_path)
 
@@ -138,7 +136,7 @@ def load_project_config(project_path: str) -> ProjectConfig:
     with open(config_path, "r") as f:
         data = json.load(f)
 
-    project_config = ProjectConfig(**data)
+    project_config = EnvironmentConfig(**data)
 
     # Store the config file path for resolving relative project_directory
     project_config._config_file_path = config_path
@@ -173,7 +171,7 @@ def get_available_projects(config: GlobalContext) -> List[AvailableProject]:
     return config.available_projects
 
 
-def activate_project(config: GlobalContext, project_identifier: str) -> Optional[ProjectConfig]:
+def activate_project(config: GlobalContext, project_identifier: str) -> Optional[EnvironmentConfig]:
     """Activate a project by path or name."""
     # First try to find by exact path
     for project in config.available_projects:
@@ -264,7 +262,7 @@ def save_config(config: GlobalContext) -> None:
         json.dump(config.model_dump(), f, indent=2)
 
 
-def get_active_project_config(config: GlobalContext) -> Optional[ProjectConfig]:
+def get_active_project_config(config: GlobalContext) -> Optional[EnvironmentConfig]:
     """Get the active project configuration."""
     if not config.active_project:
         # No active project set, copy default and set it
