@@ -284,23 +284,15 @@ def setup_shell(force=False):
         else:
             print(f"Warning: Could not find source shell_addins.sh at {source_shell_path}")
 
-        # Generate bash completion script
+        # Generate bash completion script from CLI structure
         completion_path = stable_shell_path.parent / "completion.bash"
         try:
-            import subprocess
+            from arm_cli.system.generate_completion import generate_completion_script
 
-            result = subprocess.run(
-                ["arm-cli"],
-                env={**os.environ, "_ARM_CLI_COMPLETE": "bash_source"},
-                capture_output=True,
-                text=True,
-            )
-            if result.returncode == 0:
-                with open(completion_path, "w") as f:
-                    f.write(result.stdout)
-                print(f"Generated completion script at {completion_path}")
-            else:
-                print("Warning: Could not generate completion script")
+            completion_script = generate_completion_script()
+            with open(completion_path, "w") as f:
+                f.write(completion_script)
+            print(f"Generated completion script at {completion_path}")
         except Exception as e:
             print(f"Warning: Could not generate completion script: {e}")
 
