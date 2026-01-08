@@ -5,14 +5,14 @@ import click
 from arm_cli.config import get_active_project_config
 
 
-def _info(ctx, shell_config: bool = False):
+def _info(ctx, shell_config: bool = False, directory: bool = False):
     """Show information about the active development environment"""
     config = ctx.obj["config"]
 
     project_config = get_active_project_config(config)
 
     if not project_config:
-        if not shell_config:
+        if not shell_config and not directory:
             print("No active development environment")
             print("Use 'arm dev env activate' to activate one")
         return
@@ -24,6 +24,15 @@ def _info(ctx, shell_config: bool = False):
             # Expand ~ to full path
             expanded_path = os.path.expanduser(shell_config_path)
             print(expanded_path)
+        return
+
+    # If --directory flag is set, only output the project directory
+    if directory:
+        resolved_dir = project_config.get_resolved_project_directory(
+            getattr(project_config, "_config_file_path", None)
+        )
+        if resolved_dir:
+            print(resolved_dir)
         return
 
     # Normal info display
@@ -48,5 +57,11 @@ info = click.command(name="info")(
         "--shell-config",
         is_flag=True,
         help="Output only the shell config path (for shell script integration)",
-    )(click.pass_context(_info))
+    )(
+        click.option(
+            "--directory",
+            is_flag=True,
+            help="Output only the project directory path",
+        )(click.pass_context(_info))
+    )
 )

@@ -284,6 +284,26 @@ def setup_shell(force=False):
         else:
             print(f"Warning: Could not find source shell_addins.sh at {source_shell_path}")
 
+        # Generate bash completion script
+        completion_path = stable_shell_path.parent / "completion.bash"
+        try:
+            import subprocess
+
+            result = subprocess.run(
+                ["arm-cli"],
+                env={**os.environ, "_ARM_CLI_COMPLETE": "bash_source"},
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode == 0:
+                with open(completion_path, "w") as f:
+                    f.write(result.stdout)
+                print(f"Generated completion script at {completion_path}")
+            else:
+                print("Warning: Could not generate completion script")
+        except Exception as e:
+            print(f"Warning: Could not generate completion script: {e}")
+
         # Create shell/ directory for user configs
         shell_dir = stable_shell_path.parent / "shell"
         shell_dir.mkdir(parents=True, exist_ok=True)
@@ -295,11 +315,23 @@ def setup_shell(force=False):
 # This file is sourced for all environments.
 # Add your global aliases, functions, and environment variables here.
 
-# Example: Custom alias for arm-cli
-# alias aa='arm-cli'
+
+# Example: Change to dev project
+# cdp() {
+#     local dir
+#     dir=$(arm-cli dev env info --directory 2>/dev/null)
+#     if [ -n "$dir" ]; then
+#         cd "$dir"
+#     else
+#         echo "No active development environment"
+#         return 1
+#     fi
+# }
 
 # Example: Change to code directory
-# alias cdc='cd ~/code'
+# cdc() {
+#     cd ~/code
+# }
 
 # Example: Set environment variables
 # export MY_GLOBAL_VAR="value"

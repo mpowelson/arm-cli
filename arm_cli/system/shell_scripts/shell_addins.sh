@@ -10,19 +10,12 @@ setup_path() {
 
 ## Setup autocomplete for arm-cli
 setup_arm_cli_completion() {
-    if command -v arm-cli >/dev/null 2>&1; then
-        local completion_script="$HOME/.arm_cli_completion.sh"
-        # Generate completion script if it doesn't exist or arm-cli was updated
-        if [ ! -f "$completion_script" ] || [ "$(command -v arm-cli)" -nt "$completion_script" ]; then
-            _ARM_CLI_COMPLETE=bash_source arm-cli > "$completion_script" 2>/dev/null || true
-        fi
-
-        # Source the script or fallback to dynamic completion
-        if [ -f "$completion_script" ]; then
-            source "$completion_script" 2>/dev/null || true
-        else
-            eval "$(_ARM_CLI_COMPLETE=bash_source arm-cli 2>/dev/null)" 2>/dev/null || true
-        fi
+    local config_dir="$HOME/.config/arm-cli"
+    local completion_script="$config_dir/completion.bash"
+    
+    # Source the pre-generated completion script if it exists
+    if [ -f "$completion_script" ]; then
+        source "$completion_script" 2>/dev/null || true
     fi
 }
 
