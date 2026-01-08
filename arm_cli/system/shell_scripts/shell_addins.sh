@@ -36,12 +36,25 @@ setup_alias() {
         if [[ $- == *i* ]]; then  # Only define alias in interactive shells
             alias "$alias_name"="$cli_path"
             complete -o default -F _arm_cli_completion "$alias_name" 2>/dev/null || true
-            
-            # Add cdp alias to change to project directory
-            alias cdp='cd "$(arm-cli projects info --field "project_directory" | sed "s|^~|$HOME|")"'
-            
-            # Add cdc alias to change to code directory
-            alias cdc='cd "$(arm-cli self settings get cdc_path | sed "s|^~|$HOME|")"'
+        fi
+    fi
+}
+
+## Source user shell configurations
+source_user_configs() {
+    local config_dir="$HOME/.config/arm-cli"
+    
+    # Source global shell config if it exists
+    if [ -f "$config_dir/shell/global.sh" ]; then
+        source "$config_dir/shell/global.sh" 2>/dev/null || true
+    fi
+    
+    # Source active environment's shell config if it exists
+    if command -v arm-cli >/dev/null 2>&1; then
+        local env_shell_config
+        env_shell_config=$(arm-cli dev env info --shell-config 2>/dev/null)
+        if [ -n "$env_shell_config" ] && [ -f "$env_shell_config" ]; then
+            source "$env_shell_config" 2>/dev/null || true
         fi
     fi
 }
@@ -68,5 +81,6 @@ check_docker_group() {
 setup_path
 setup_arm_cli_completion
 setup_alias
+source_user_configs
 allow_x11_docker_access
 check_docker_group

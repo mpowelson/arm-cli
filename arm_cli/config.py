@@ -14,6 +14,7 @@ class EnvironmentConfig(BaseModel):
     name: str
     description: Optional[str] = None
     project_directory: Optional[str] = None
+    shell_config_path: Optional[str] = None
 
     def get_resolved_project_directory(
         self, config_file_path: Optional[Path] = None

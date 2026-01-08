@@ -249,6 +249,13 @@ def is_line_in_file(line, filepath) -> bool:
         return any(line.strip() in file_line.strip() for file_line in f)
 
 
+def get_stable_shell_addins_path():
+    """Get the stable path for shell_addins.sh in user config directory"""
+    from arm_cli.config import get_config_dir
+
+    return get_config_dir() / "shell_addins.sh"
+
+
 def setup_shell(force=False):
     """Setup shell addins for autocomplete"""
     shell = detect_shell()
@@ -263,17 +270,52 @@ def setup_shell(force=False):
             # Normal operation, use current user's home
             bashrc_path = os.path.expanduser("~/.bashrc")
 
-        line = f"source {get_current_shell_addins()}"
+        # Copy shell_addins.sh to stable location
+        stable_shell_path = get_stable_shell_addins_path()
+        source_shell_path = get_current_shell_addins()
+
+        if source_shell_path and os.path.exists(source_shell_path):
+            # Ensure parent directory exists
+            stable_shell_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Copy the shell script
+            shutil.copy2(source_shell_path, stable_shell_path)
+            print(f"Copied shell_addins.sh to {stable_shell_path}")
+        else:
+            print(f"Warning: Could not find source shell_addins.sh at {source_shell_path}")
+
+        # Create shell/ directory for user configs
+        shell_dir = stable_shell_path.parent / "shell"
+        shell_dir.mkdir(parents=True, exist_ok=True)
+
+        # Create global.sh template if it doesn't exist
+        global_sh_path = shell_dir / "global.sh"
+        if not global_sh_path.exists():
+            global_template = """# Global shell configuration for arm-cli
+# This file is sourced for all environments.
+# Add your global aliases, functions, and environment variables here.
+
+# Example: Custom alias for arm-cli
+# alias aa='arm-cli'
+
+# Example: Change to code directory
+# alias cdc='cd ~/code'
+
+# Example: Set environment variables
+# export MY_GLOBAL_VAR="value"
+"""
+            with open(global_sh_path, "w") as f:
+                f.write(global_template)
+            print(f"Created global shell config template at {global_sh_path}")
+
+        line = f"source {stable_shell_path}"
         # Detect any existing sourcing of shell_addins.sh (even from old paths)
         existing_lines = []
         try:
             with open(bashrc_path, "r") as f:
                 for file_line in f:
                     stripped = file_line.strip()
-                    if (
-                        stripped.startswith("source")
-                        and "/arm_cli/system/shell_scripts/shell_addins.sh" in stripped
-                    ):
+                    if stripped.startswith("source") and "shell_addins.sh" in stripped:
                         existing_lines.append(stripped)
         except FileNotFoundError:
             existing_lines = []
@@ -282,21 +324,21 @@ def setup_shell(force=False):
         outdated_lines = [old_line for old_line in existing_lines if old_line != line]
         if outdated_lines:
             click.secho(
-                "Warning: Found old shell addins entries in ~/.bashrc that reference a previous Python/site-packages path.",
+                "Warning: Found old shell addins entries in ~/.bashrc with outdated paths.",
                 fg="yellow",
                 err=True,
             )
             for old in outdated_lines:
                 click.secho(f"  - {old}", fg="yellow", err=True)
             click.secho(
-                "It is recommended to remove these old lines to avoid duplicate sourcing.",
+                "It is recommended to update these to use the stable path.",
                 fg="yellow",
                 err=True,
             )
 
             # Offer to update outdated entries in-place to the current path
             if force or click.confirm(
-                "Do you want me to update these outdated entries to the current path now? "
+                "Do you want me to update these outdated entries to the stable path now? "
                 "A backup will be saved to /tmp/.bashrc_backup."
             ):
                 try:
@@ -308,7 +350,7 @@ def setup_shell(force=False):
                     for file_line in contents:
                         if (
                             file_line.strip().startswith("source")
-                            and "/arm_cli/system/shell_scripts/shell_addins.sh" in file_line
+                            and "shell_addins.sh" in file_line
                             and file_line.strip() != line
                         ):
                             new_contents.append(line + "\n")
@@ -320,10 +362,7 @@ def setup_shell(force=False):
                     existing_lines = []
                     for file_line in new_contents:
                         stripped = file_line.strip()
-                        if (
-                            stripped.startswith("source")
-                            and "/arm_cli/system/shell_scripts/shell_addins.sh" in stripped
-                        ):
+                        if stripped.startswith("source") and "shell_addins.sh" in stripped:
                             existing_lines.append(stripped)
                     print(
                         "Updated outdated shell addins entries in ~/.bashrc (backup at /tmp/.bashrc_backup)"
