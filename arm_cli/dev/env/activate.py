@@ -1,3 +1,4 @@
+# Copy from projects/activate.py with updated terminology
 from typing import Optional
 
 import click
@@ -10,29 +11,28 @@ from arm_cli.config import (
     print_available_projects,
     print_no_projects_message,
 )
-from arm_cli.settings import get_setting
 
 
-def _activate(ctx, project: Optional[str] = None):
-    """Activate a project from available projects"""
+def _activate(ctx, env: Optional[str] = None):
+    """Activate a development environment"""
     config = ctx.obj["config"]
 
-    # If no project specified, show interactive list
-    if project is None:
+    # If no env specified, show interactive list
+    if env is None:
         available_projects = get_available_projects(config)
 
         if not available_projects:
-            print("No projects available. Setting up default project...")
+            print("No environments available. Setting up default...")
             project_config = get_active_project_config(config)
             if project_config:
-                print(f"Activated default project: {project_config.name}")
+                print(f"Activated default environment: {project_config.name}")
                 resolved_dir = project_config.get_resolved_project_directory(
                     getattr(project_config, "_config_file_path", None)
                 )
-                print(f"Project directory: {resolved_dir}")
+                print(f"Directory: {resolved_dir}")
             else:
-                print("Failed to set up default project.")
-                print_no_projects_message()
+                print("Failed to set up default environment.")
+                print("Use 'arm dev env create' to create an environment.")
             return
 
         # Create choices for inquirer
@@ -44,8 +44,8 @@ def _activate(ctx, project: Optional[str] = None):
         # Create the question
         questions = [
             inquirer.List(
-                "project",
-                message="Select a project to activate",
+                "env",
+                message="Select an environment to activate",
                 choices=choices,
                 carousel=True,
             )
@@ -57,31 +57,31 @@ def _activate(ctx, project: Optional[str] = None):
                 print("Cancelled.")
                 return
 
-            # Extract project name (remove the active indicator if present)
-            selected_choice = answers["project"]
-            project = selected_choice.replace(" *", "")
-            if project is None:
-                raise RuntimeError("Project name cannot be None")
+            # Extract env name (remove the active indicator if present)
+            selected_choice = answers["env"]
+            env = selected_choice.replace(" *", "")
+            if env is None:
+                raise RuntimeError("Environment name cannot be None")
 
         except KeyboardInterrupt:
             print("\nCancelled.")
             return
 
-    # Try to activate the project
-    project_config = activate_project(config, project)
+    # Try to activate the environment
+    project_config = activate_project(config, env)
 
     if project_config:
-        print(f"Activated project: {project_config.name}")
+        print(f"Activated environment: {project_config.name}")
         resolved_dir = project_config.get_resolved_project_directory(
             getattr(project_config, "_config_file_path", None)
         )
-        print(f"Project directory: {resolved_dir}")
+        print(f"Directory: {resolved_dir}")
     else:
-        print(f"Project '{project}' not found in available projects")
+        print(f"Environment '{env}' not found")
         print_available_projects(config)
 
 
 # Create the command object
 activate = click.command(name="activate")(
-    click.argument("project", required=False)(click.pass_context(_activate))
+    click.argument("env", required=False)(click.pass_context(_activate))
 )
